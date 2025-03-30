@@ -386,10 +386,12 @@
       return; // Modal hasn't been created yet
     }
     // Determine target state: show if forceState is true, hide if false, toggle otherwise
+    const currentComputedDisplay =
+      window.getComputedStyle(modalOverlay).display;
     const shouldShow =
       typeof forceState === "boolean"
         ? forceState
-        : modalOverlay.style.display === "none";
+        : currentComputedDisplay === "none";
 
     if (shouldShow) {
       loadSettingsIntoModal(); // Load current settings when showing
