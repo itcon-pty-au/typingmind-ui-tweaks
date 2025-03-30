@@ -365,8 +365,7 @@
       //console.log(`${consolePrefix} Setting ${key} saved: ${value}`);
       // Show feedback message
       if (feedbackElement) {
-        feedbackElement.textContent =
-          "Settings saved. Reload the page for changes to take effect.";
+        feedbackElement.textContent = "Settings saved.";
       }
       // Re-apply styles immediately. While reload is needed for full effect (especially if elements were added later),
       // this provides instant feedback for existing elements.
