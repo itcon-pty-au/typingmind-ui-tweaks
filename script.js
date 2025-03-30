@@ -7,6 +7,7 @@
     hideLogo: "tweak_hideLogo",
     hideProfile: "tweak_hideProfile",
     hideChatProfiles: "tweak_hideChatProfiles",
+    hidePinnedChars: "tweak_hidePinnedChars",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -27,6 +28,7 @@
     const hideLogo = getSetting(settingsKeys.hideLogo);
     const hideProfile = getSetting(settingsKeys.hideProfile);
     const hideChatProfiles = getSetting(settingsKeys.hideChatProfiles);
+    const hidePinnedChars = getSetting(settingsKeys.hidePinnedChars);
 
     // --- Apply Teams button style ---
     const teamsButton = document.querySelector(
@@ -124,6 +126,20 @@
       }
     });
     // Optional: if (!chatProfileButtonFound) { console.log(`${consolePrefix} Chat Profiles button not found.`); }
+
+    // --- Apply Pinned Characters container style ---
+    const pinnedCharsContainer = document.querySelector(
+      'div[data-element-id="pinned-characters-container"]'
+    );
+    if (pinnedCharsContainer) {
+      const newDisplay = hidePinnedChars ? "none" : "";
+      if (pinnedCharsContainer.style.display !== newDisplay) {
+        pinnedCharsContainer.style.display = newDisplay;
+        // Optional: console.log(`${consolePrefix} Pinned Characters container display set to '${newDisplay || 'default'}'.`);
+      }
+    } else {
+      // Optional: console.log(`${consolePrefix} Pinned Characters container not found.`);
+    }
   }
 
   // --- Modal Elements and Logic ---
@@ -295,6 +311,10 @@
       {
         key: settingsKeys.hideChatProfiles,
         label: "Hide 'Chat Profiles' button",
+      },
+      {
+        key: settingsKeys.hidePinnedChars,
+        label: "Hide Characters in New Chat",
       },
     ];
 
