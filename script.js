@@ -612,16 +612,22 @@
     if (!modalElement) return; // Ensure modal exists
 
     // Load checkbox states
-    Object.keys(settingsKeys).forEach((key) => {
-      // Only process non-color settings here
+    Object.values(settingsKeys).forEach((storageKey) => {
+      // Filter out color settings based on their actual key values
       if (
-        key !== settingsKeys.newChatButtonColor &&
-        key !== settingsKeys.workspaceIconColor &&
-        key !== settingsKeys.workspaceFontColor
+        storageKey !== settingsKeys.newChatButtonColor &&
+        storageKey !== settingsKeys.workspaceIconColor &&
+        storageKey !== settingsKeys.workspaceFontColor
       ) {
-        const checkbox = document.getElementById(key);
+        // Process as checkbox
+        const checkbox = document.getElementById(storageKey); // Use storageKey as ID
         if (checkbox) {
-          checkbox.checked = getSetting(key); // Default is false
+          // Use storageKey to get the setting value
+          checkbox.checked = getSetting(storageKey); // Default is false
+        } else {
+          console.warn(
+            `${consolePrefix} Checkbox element not found for ID: ${storageKey}`
+          );
         }
       }
     });
