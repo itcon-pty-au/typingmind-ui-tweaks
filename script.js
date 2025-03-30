@@ -10,11 +10,13 @@
     hidePinnedChars: "tweak_hidePinnedChars",
     newChatButtonColor: "tweak_newChatButtonColor",
     workspaceIconColor: "tweak_workspaceIconColor",
+    workspaceFontColor: "tweak_workspaceFontColor",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
   const defaultNewChatButtonColor = "#2563eb";
   const defaultWorkspaceIconColorVisual = "#9ca3af";
+  const defaultWorkspaceFontColorVisual = "#d1d5db";
 
   // Function to get settings from localStorage
   function getSetting(key, defaultValue = false) {
@@ -35,6 +37,7 @@
     // Get color setting, default to null if not set
     const newChatColor = getSetting(settingsKeys.newChatButtonColor, null);
     const wsIconColor = getSetting(settingsKeys.workspaceIconColor, null);
+    const wsFontColor = getSetting(settingsKeys.workspaceFontColor, null);
 
     // --- Apply Teams button style ---
     const teamsButton = document.querySelector(
@@ -188,6 +191,24 @@
       // Optional: console.log(`${consolePrefix} Workspace icons color updated.`);
     } else {
       // Optional: console.log(`${consolePrefix} Workspace bar not found for icon coloring.`);
+    }
+
+    // --- Apply Workspace Font color ---
+    if (workspaceBar) {
+      if (wsFontColor) {
+        // Apply user-defined color
+        if (workspaceBar.style.color !== wsFontColor) {
+          workspaceBar.style.color = wsFontColor;
+        }
+      } else {
+        // Reset to default (remove inline style)
+        if (workspaceBar.style.color !== "") {
+          workspaceBar.style.color = "";
+        }
+      }
+      // Optional: console.log(`${consolePrefix} Workspace font color updated.`);
+    } else {
+      // Optional: console.log(`${consolePrefix} Workspace bar not found for font coloring.`);
     }
   }
 
@@ -508,6 +529,40 @@
     wsIconColorPickerSection.appendChild(wsIconColorInputWrapper);
     // --- End Workspace Icon Color Picker Section ---
 
+    // --- NEW: Create Workspace Font Color Picker Section ---
+    const wsFontColorPickerSection = document.createElement("div");
+    wsFontColorPickerSection.className = "tweak-color-item"; // Reuse class
+
+    const wsFontColorLabel = document.createElement("label");
+    wsFontColorLabel.htmlFor = "tweak_workspaceFontColor_input";
+    wsFontColorLabel.textContent = "Workspace Font Color:";
+
+    const wsFontColorInputWrapper = document.createElement("div");
+    wsFontColorInputWrapper.className = "tweak-color-input-wrapper"; // Reuse class
+
+    const wsFontColorInput = document.createElement("input");
+    wsFontColorInput.type = "color";
+    wsFontColorInput.id = "tweak_workspaceFontColor_input";
+    wsFontColorInput.addEventListener("input", (event) => {
+      saveSetting(settingsKeys.workspaceFontColor, event.target.value);
+    });
+
+    const wsFontResetButton = document.createElement("button");
+    wsFontResetButton.textContent = "Reset";
+    wsFontResetButton.className = "tweak-reset-button"; // Reuse class
+    wsFontResetButton.type = "button";
+    wsFontResetButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.workspaceFontColor, null);
+      wsFontColorInput.value = defaultWorkspaceFontColorVisual; // Reset picker to visual default
+    });
+
+    // Assemble workspace font color picker section
+    wsFontColorInputWrapper.appendChild(wsFontColorInput);
+    wsFontColorInputWrapper.appendChild(wsFontResetButton);
+    wsFontColorPickerSection.appendChild(wsFontColorLabel);
+    wsFontColorPickerSection.appendChild(wsFontColorInputWrapper);
+    // --- End Workspace Font Color Picker Section ---
+
     // Create Footer Container
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
@@ -527,6 +582,7 @@
     modalElement.appendChild(settingsSection);
     modalElement.appendChild(colorPickerSection);
     modalElement.appendChild(wsIconColorPickerSection);
+    modalElement.appendChild(wsFontColorPickerSection);
     modalElement.appendChild(footer);
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
@@ -541,7 +597,8 @@
       // Only process non-color settings here
       if (
         key !== settingsKeys.newChatButtonColor &&
-        key !== settingsKeys.workspaceIconColor
+        key !== settingsKeys.workspaceIconColor &&
+        key !== settingsKeys.workspaceFontColor
       ) {
         const checkbox = document.getElementById(key);
         if (checkbox) {
@@ -577,6 +634,21 @@
       wsIconColorInput.value = storedWsIconColor
         ? storedWsIconColor
         : defaultWorkspaceIconColorVisual;
+    }
+
+    // Load Workspace Font color picker state
+    const wsFontColorInput = document.getElementById(
+      "tweak_workspaceFontColor_input"
+    );
+    if (wsFontColorInput) {
+      const storedWsFontColor = getSetting(
+        settingsKeys.workspaceFontColor,
+        null
+      );
+      // If a color is stored, use it. Otherwise, use the visual default grey.
+      wsFontColorInput.value = storedWsFontColor
+        ? storedWsFontColor
+        : defaultWorkspaceFontColorVisual;
     }
 
     // Clear feedback message when opening the modal
