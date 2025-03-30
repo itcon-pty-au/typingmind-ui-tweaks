@@ -107,23 +107,23 @@
     }
 
     // --- Apply Chat Profiles button style ---
-    const chatProfileSvg = document.querySelector(
-      'svg[data-element-id="user-profile-symbol"]'
-    );
-    if (chatProfileSvg) {
-      const chatProfileButton = chatProfileSvg.closest("button");
-      if (chatProfileButton) {
-        const newDisplay = hideChatProfiles ? "none" : "";
-        if (chatProfileButton.style.display !== newDisplay) {
-          chatProfileButton.style.display = newDisplay;
-          // Optional: console.log(`${consolePrefix} Chat Profiles button display set to '${newDisplay || 'default'}'.`);
+    const chatProfileSpans = document.querySelectorAll("span");
+    let chatProfileButtonFound = false;
+    chatProfileSpans.forEach((span) => {
+      if (span.textContent.trim() === "Chat Profiles") {
+        const button = span.closest("button"); // Find the nearest ancestor button
+        if (button) {
+          chatProfileButtonFound = true;
+          const newDisplay = hideChatProfiles ? "none" : "";
+          if (button.style.display !== newDisplay) {
+            button.style.display = newDisplay;
+            // Optional: console.log(`${consolePrefix} Chat Profiles button display set to '${newDisplay || 'default'}'.`);
+          }
+          // Assuming there's only one such button, but loop continues just in case
         }
-      } else {
-        // Optional: console.log(`${consolePrefix} Chat Profiles button (parent) not found.`);
       }
-    } else {
-      // Optional: console.log(`${consolePrefix} Chat Profiles SVG not found.`);
-    }
+    });
+    // Optional: if (!chatProfileButtonFound) { console.log(`${consolePrefix} Chat Profiles button not found.`); }
   }
 
   // --- Modal Elements and Logic ---
