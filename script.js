@@ -5,6 +5,7 @@
     hideTeams: "tweak_hideTeams",
     hideKB: "tweak_hideKB",
     hideLogo: "tweak_hideLogo",
+    hideProfile: "tweak_hideProfile",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -22,6 +23,7 @@
     const hideTeams = getSetting(settingsKeys.hideTeams);
     const hideKB = getSetting(settingsKeys.hideKB);
     const hideLogo = getSetting(settingsKeys.hideLogo);
+    const hideProfile = getSetting(settingsKeys.hideProfile);
 
     // --- Apply Teams button style ---
     const teamsButton = document.querySelector(
@@ -85,6 +87,20 @@
       }
     } else {
       // Optional: console.log(`${consolePrefix} Logo container not found.`);
+    }
+
+    // --- Apply Profile button style ---
+    const profileButton = document.querySelector(
+      'button[data-element-id="workspace-profile-button"]'
+    );
+    if (profileButton) {
+      const newDisplay = hideProfile ? "none" : "";
+      if (profileButton.style.display !== newDisplay) {
+        profileButton.style.display = newDisplay;
+        // Optional: console.log(`${consolePrefix} Profile button display set to '${newDisplay || 'default'}'.`);
+      }
+    } else {
+      // Optional: console.log(`${consolePrefix} Profile button not found.`);
     }
   }
 
@@ -253,6 +269,7 @@
       { key: settingsKeys.hideTeams, label: "Hide 'Teams' menu item" },
       { key: settingsKeys.hideKB, label: "Hide 'KB' menu item" },
       { key: settingsKeys.hideLogo, label: "Hide Logo & Announcement section" },
+      { key: settingsKeys.hideProfile, label: "Hide 'Profile' button" },
     ];
 
     // Create Checkbox Items
@@ -319,7 +336,7 @@
   function saveSetting(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      console.log(`${consolePrefix} Setting ${key} saved: ${value}`);
+      //console.log(`${consolePrefix} Setting ${key} saved: ${value}`);
       // Show feedback message
       if (feedbackElement) {
         feedbackElement.textContent =
@@ -399,5 +416,7 @@
     document.addEventListener("DOMContentLoaded", applyStylesBasedOnSettings);
   }
 
-  console.log(`${consolePrefix} Initialized. Press Shift+Alt+T for settings.`);
+  console.log(
+    `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings.`
+  );
 })();
