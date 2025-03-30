@@ -520,7 +520,7 @@
 
     const wsIconColorLabel = document.createElement("label");
     wsIconColorLabel.htmlFor = "tweak_workspaceIconColor_input";
-    wsIconColorLabel.textContent = "Workspace Icon Color:";
+    wsIconColorLabel.textContent = "Menu Icon Color:";
 
     const wsIconColorInputWrapper = document.createElement("div");
     wsIconColorInputWrapper.className = "tweak-color-input-wrapper"; // Reuse class
@@ -554,7 +554,7 @@
 
     const wsFontColorLabel = document.createElement("label");
     wsFontColorLabel.htmlFor = "tweak_workspaceFontColor_input";
-    wsFontColorLabel.textContent = "Workspace Font Color:";
+    wsFontColorLabel.textContent = "Menu Font Color:";
 
     const wsFontColorInputWrapper = document.createElement("div");
     wsFontColorInputWrapper.className = "tweak-color-input-wrapper"; // Reuse class
