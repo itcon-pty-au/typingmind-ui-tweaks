@@ -18,6 +18,7 @@
   const defaultNewChatButtonColor = "#2563eb";
   const defaultWorkspaceIconColorVisual = "#9ca3af";
   const defaultWorkspaceFontColorVisual = "#d1d5db";
+  let originalPageTitle = null; // Variable to store the initial page title
 
   // Function to get settings from localStorage
   function getSetting(key, defaultValue = false) {
@@ -232,9 +233,9 @@
     }
   }
 
-  // --- NEW Function to Apply Custom Page Title ---
+  // --- Function to Apply Custom Page Title ---
   function applyCustomTitle() {
-    // MODIFIED: Get raw string directly from localStorage, bypassing getSetting/JSON.parse
+    // Get raw string directly from localStorage, bypassing getSetting/JSON.parse
     const customTitle = localStorage.getItem(settingsKeys.customPageTitle);
     // Check if title exists, is a string, and isn't empty after trimming
     if (
@@ -247,9 +248,11 @@
         // Optional: console.log(`${consolePrefix} Page title set to: ${customTitle}`);
       }
     } else {
-      // If setting is null/empty, we don't actively reset the title here,
-      // allowing the website's default behavior to take over.
-      // The original title might be dynamic.
+      // If setting is null/empty, revert to the stored original title if available
+      if (originalPageTitle && document.title !== originalPageTitle) {
+        document.title = originalPageTitle;
+        // Optional: console.log(`${consolePrefix} Page title reverted to original: ${originalPageTitle}`);
+      }
     }
   }
 
@@ -846,34 +849,43 @@
     }
   });
 
-  // --- Initialization ---
+  // --- Initialization Function ---
+  function initializeTweaks() {
+    // Capture the original title only once
+    if (originalPageTitle === null) {
+      originalPageTitle = document.title;
+      // Optional: console.log(`${consolePrefix} Original page title captured: ${originalPageTitle}`);
+    }
+    // Apply styles and title
+    applyStylesBasedOnSettings();
+    applyCustomTitle();
+  }
+
+  // --- Initialization --- // Modified
 
   // Ensure the modal is created when the script runs
   createSettingsModal();
 
   // --- Observe DOM changes and apply styles ---
+  // The observer only needs to apply styles, not the title, as title is static once set/cleared
   const observer = new MutationObserver((mutationsList) => {
-    // Optimization: debounce or check mutations if performance becomes an issue
-    // For now, simply re-apply styles on any observed change
     applyStylesBasedOnSettings();
   });
 
-  // Start observing the body for child additions/removals and subtree changes
+  // Start observing the body
   observer.observe(document.body, {
     childList: true,
     subtree: true,
   });
 
-  // Apply styles based on settings as soon as the DOM is ready
+  // Apply styles and title once the DOM is ready
   if (
     document.readyState === "complete" ||
     document.readyState === "interactive"
   ) {
-    applyStylesBasedOnSettings();
-    applyCustomTitle(); // Apply title on load
+    initializeTweaks(); // Use the initialization function
   } else {
-    document.addEventListener("DOMContentLoaded", applyStylesBasedOnSettings);
-    document.addEventListener("DOMContentLoaded", applyCustomTitle); // Apply title on load
+    document.addEventListener("DOMContentLoaded", initializeTweaks); // Use the init function
   }
 
   console.log(
