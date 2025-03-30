@@ -314,7 +314,7 @@
       },
       {
         key: settingsKeys.hidePinnedChars,
-        label: "Hide Characters in New Chat",
+        label: "Hide 'Characters' in New Chat",
       },
     ];
 
