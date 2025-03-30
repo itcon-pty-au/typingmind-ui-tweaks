@@ -234,7 +234,9 @@
 
   // --- NEW Function to Apply Custom Page Title ---
   function applyCustomTitle() {
-    const customTitle = getSetting(settingsKeys.customPageTitle, null);
+    // MODIFIED: Get raw string directly from localStorage, bypassing getSetting/JSON.parse
+    const customTitle = localStorage.getItem(settingsKeys.customPageTitle);
+    // Check if title exists, is a string, and isn't empty after trimming
     if (
       customTitle &&
       typeof customTitle === "string" &&
