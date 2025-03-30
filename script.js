@@ -653,7 +653,7 @@
     const titleInput = document.createElement("input");
     titleInput.type = "text";
     titleInput.id = "tweak_customPageTitle_input";
-    titleInput.placeholder = "Enter custom title..."; // Placeholder text
+    titleInput.placeholder = "";
     titleInput.addEventListener("input", (event) => {
       // Save the raw string value, don't JSON.parse later
       localStorage.setItem(
