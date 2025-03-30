@@ -97,41 +97,97 @@
     // Prevent creating multiple modals if script runs again somehow
     if (document.getElementById("tweak-modal-overlay")) return;
 
-    // Inject CSS
+    // Inject CSS (Updated for Dark Theme)
     const styles = `
       #tweak-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
+        background-color: rgba(0, 0, 0, 0.75); /* Darker overlay */
         display: none; /* Hidden by default */
         justify-content: center; align-items: center; z-index: 10001; /* High z-index */
         font-family: sans-serif; /* Basic font */
       }
       #tweak-modal {
-        background-color: #ffffff; padding: 25px 35px; border-radius: 8px;
-        min-width: 320px; max-width: 500px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-        position: relative; color: #333; border: 1px solid #ddd;
+        background-color: #2d2d2d; /* Dark background */
+        color: #f0f0f0; /* Light text */
+        padding: 25px 35px;
+        border-radius: 8px;
+        min-width: 350px; /* Slightly wider */
+        max-width: 500px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5); /* More prominent shadow */
+        position: relative;
+        /* border: 1px solid #555; /* Optional subtle border */
       }
       #tweak-modal h2 {
-          margin-top: 0; margin-bottom: 15px; color: #1a1a1a; font-size: 1.6em;
-          font-weight: 600; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px;
+          margin-top: 0; margin-bottom: 20px; /* Increased margin */
+          color: #ffffff; /* White header */
+          font-size: 1.5em; /* Slightly adjusted size */
+          font-weight: 600;
+          text-align: center;
+          /* Removed border-bottom */
        }
       #tweak-modal-feedback {
-          font-size: 0.95em; color: #007bff; /* Blue feedback text */
-          margin-bottom: 20px; min-height: 1.3em; text-align: center;
+          font-size: 0.9em; /* Slightly smaller */
+          color: #a0cfff; /* Light blue feedback text */
+          margin-top: 15px; /* Added margin top */
+          margin-bottom: 5px; /* Reduced margin bottom */
+          min-height: 1.2em;
+          text-align: center;
           font-weight: 500;
        }
       #tweak-modal-close {
-        position: absolute; top: 8px; right: 8px; font-size: 2em;
-        color: #aaa; cursor: pointer; line-height: 1; border: none; background: none;
+        position: absolute; top: 10px; right: 10px; /* Adjusted position */
+        font-size: 2.2em;
+        color: #aaaaaa; /* Lighter grey 'X' */
+        cursor: pointer; line-height: 1; border: none; background: none;
         padding: 0 5px; font-weight: lighter;
+        transition: color 0.2s ease; /* Smooth transition */
       }
-      #tweak-modal-close:hover { color: #e60000; /* Red on hover */ }
+      #tweak-modal-close:hover { color: #ff4d4d; /* Brighter Red on hover */ }
+
+      /* NEW: Styling for the settings section */
+      .tweak-settings-section {
+        background-color: #3a3a3a; /* Slightly lighter dark background for section */
+        padding: 20px 25px;
+        border-radius: 6px;
+        margin-top: 10px; /* Space below header/feedback */
+        border: 1px solid #484848; /* Subtle border for the section */
+      }
+
       .tweak-checkbox-item { margin-bottom: 18px; display: flex; align-items: center; }
+      .tweak-checkbox-item:last-child { margin-bottom: 5px; } /* Reduce margin for last item */
+
       .tweak-checkbox-item input[type='checkbox'] {
-          margin-right: 12px; transform: scale(1.2); cursor: pointer;
-          accent-color: #007bff; /* Style checkbox color */
+          margin-right: 15px; /* Increased spacing */
+          transform: scale(1.2);
+          cursor: pointer;
+          accent-color: #007bff; /* Keep blue accent for visibility */
+          background-color: #555; /* Darker background for unchecked state */
+          border-radius: 3px; /* Slightly rounded */
+          border: 1px solid #777;
        }
-      .tweak-checkbox-item label { cursor: pointer; flex-grow: 1; font-size: 1.05em; color: #444;}
+       /* Style the checkmark itself for better contrast (browser support varies) */
+       .tweak-checkbox-item input[type='checkbox']::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: white; /* Ensures checkmark is visible */
+            transform: scale(0); /* Hidden when unchecked */
+            transition: transform 0.1s ease-in-out;
+       }
+       .tweak-checkbox-item input[type='checkbox']:checked::before {
+            transform: scale(0.6); /* Visible checkmark size */
+            /* You might need vendor prefixes depending on browser target */
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 15%, 80% 0%, 43% 62%); /* Checkmark shape */
+       }
+
+
+      .tweak-checkbox-item label {
+          cursor: pointer;
+          flex-grow: 1;
+          font-size: 1em; /* Adjusted size */
+          color: #e0e0e0; /* Slightly off-white */
+      }
     `;
     const styleSheet = document.createElement("style");
     styleSheet.innerText = styles;
@@ -140,7 +196,6 @@
     // Create Overlay
     modalOverlay = document.createElement("div");
     modalOverlay.id = "tweak-modal-overlay";
-    // Optional: Close on overlay click (if clicked outside the modal content)
     modalOverlay.addEventListener("click", (e) => {
       if (e.target === modalOverlay) {
         toggleModal(false);
@@ -154,7 +209,7 @@
     // Close Button ('X')
     const closeButton = document.createElement("button");
     closeButton.id = "tweak-modal-close";
-    closeButton.innerHTML = "&times;"; // HTML entity for '×'
+    closeButton.innerHTML = "&times;";
     closeButton.setAttribute("aria-label", "Close Settings");
     closeButton.addEventListener("click", () => toggleModal(false));
 
@@ -165,14 +220,18 @@
     // Feedback Area
     feedbackElement = document.createElement("p");
     feedbackElement.id = "tweak-modal-feedback";
-    feedbackElement.textContent = " "; // Placeholder to reserve space
+    feedbackElement.textContent = " ";
 
-    // Checkbox Container
+    // NEW: Settings Section Container
+    const settingsSection = document.createElement("div");
+    settingsSection.className = "tweak-settings-section"; // Add class for styling
+
+    // Checkbox Container (now goes inside settingsSection)
     const checkboxContainer = document.createElement("div");
 
     // Define Settings and Labels
     const settings = [
-      { key: settingsKeys.hideTeams, label: "Hide 'Teams' menu item" }, // Updated labels for clarity
+      { key: settingsKeys.hideTeams, label: "Hide 'Teams' menu item" },
       { key: settingsKeys.hideKB, label: "Hide 'KB' menu item" },
       { key: settingsKeys.hideLogo, label: "Hide Logo & Announcement section" },
     ];
@@ -184,29 +243,31 @@
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.id = setting.key; // Use setting key as ID
+      checkbox.id = setting.key;
       checkbox.name = setting.key;
-      // Add event listener to save setting on change
       checkbox.addEventListener("change", (event) =>
         saveSetting(setting.key, event.target.checked)
       );
 
       const label = document.createElement("label");
-      label.htmlFor = setting.key; // Link label to checkbox by ID
+      label.htmlFor = setting.key;
       label.textContent = setting.label;
 
       itemDiv.appendChild(checkbox);
       itemDiv.appendChild(label);
-      checkboxContainer.appendChild(itemDiv);
+      checkboxContainer.appendChild(itemDiv); // Add item to inner container
     });
+
+    // Add checkboxContainer to the new section container
+    settingsSection.appendChild(checkboxContainer);
 
     // Assemble Modal structure
     modalElement.appendChild(closeButton);
     modalElement.appendChild(header);
-    modalElement.appendChild(feedbackElement);
-    modalElement.appendChild(checkboxContainer);
-    modalOverlay.appendChild(modalElement); // Add modal box to overlay
-    document.body.appendChild(modalOverlay); // Add overlay to page body
+    modalElement.appendChild(feedbackElement); // Feedback appears above the section
+    modalElement.appendChild(settingsSection); // Add the styled section
+    modalOverlay.appendChild(modalElement);
+    document.body.appendChild(modalOverlay);
   }
 
   // Function to load current settings into the modal's checkboxes
