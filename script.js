@@ -97,96 +97,122 @@
     // Prevent creating multiple modals if script runs again somehow
     if (document.getElementById("tweak-modal-overlay")) return;
 
-    // Inject CSS (Updated for Dark Theme)
+    // Inject CSS (Updated for Dark Theme v2)
     const styles = `
       #tweak-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.75); /* Darker overlay */
+        background-color: rgba(0, 0, 0, 0.8); /* Even darker overlay */
         display: none; /* Hidden by default */
-        justify-content: center; align-items: center; z-index: 10001; /* High z-index */
-        font-family: sans-serif; /* Basic font */
+        justify-content: center; align-items: center; z-index: 10001;
+        font-family: sans-serif;
       }
       #tweak-modal {
-        background-color: #2d2d2d; /* Dark background */
-        color: #f0f0f0; /* Light text */
+        background-color: #252525; /* Very dark grey, near black */
+        color: #f0f0f0;
         padding: 25px 35px;
         border-radius: 8px;
-        min-width: 350px; /* Slightly wider */
+        min-width: 350px;
         max-width: 500px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5); /* More prominent shadow */
+        box-shadow: 0 8px 25px rgba(0,0,0,0.6); /* Stronger shadow */
         position: relative;
-        /* border: 1px solid #555; /* Optional subtle border */
+        border: 1px solid #4a4a4a; /* Subtle light grey border */
       }
       #tweak-modal h2 {
-          margin-top: 0; margin-bottom: 20px; /* Increased margin */
-          color: #ffffff; /* White header */
-          font-size: 1.5em; /* Slightly adjusted size */
+          margin-top: 0; margin-bottom: 20px;
+          color: #ffffff;
+          font-size: 1.5em;
           font-weight: 600;
           text-align: center;
-          /* Removed border-bottom */
        }
       #tweak-modal-feedback {
-          font-size: 0.9em; /* Slightly smaller */
-          color: #a0cfff; /* Light blue feedback text */
-          margin-top: 15px; /* Added margin top */
-          margin-bottom: 5px; /* Reduced margin bottom */
+          font-size: 0.9em;
+          color: #a0cfff;
+          margin-top: 15px;
+          margin-bottom: 5px;
           min-height: 1.2em;
           text-align: center;
           font-weight: 500;
        }
-      #tweak-modal-close {
-        position: absolute; top: 10px; right: 10px; /* Adjusted position */
-        font-size: 2.2em;
-        color: #aaaaaa; /* Lighter grey 'X' */
-        cursor: pointer; line-height: 1; border: none; background: none;
-        padding: 0 5px; font-weight: lighter;
-        transition: color 0.2s ease; /* Smooth transition */
-      }
-      #tweak-modal-close:hover { color: #ff4d4d; /* Brighter Red on hover */ }
 
-      /* NEW: Styling for the settings section */
       .tweak-settings-section {
-        background-color: #3a3a3a; /* Slightly lighter dark background for section */
+        background-color: #333333; /* Slightly adjusted section background */
         padding: 20px 25px;
         border-radius: 6px;
-        margin-top: 10px; /* Space below header/feedback */
-        border: 1px solid #484848; /* Subtle border for the section */
+        margin-top: 10px;
+        border: 1px solid #484848;
       }
 
       .tweak-checkbox-item { margin-bottom: 18px; display: flex; align-items: center; }
-      .tweak-checkbox-item:last-child { margin-bottom: 5px; } /* Reduce margin for last item */
+      .tweak-checkbox-item:last-child { margin-bottom: 5px; }
 
       .tweak-checkbox-item input[type='checkbox'] {
-          margin-right: 15px; /* Increased spacing */
+          margin-right: 15px;
           transform: scale(1.2);
           cursor: pointer;
-          accent-color: #007bff; /* Keep blue accent for visibility */
-          background-color: #555; /* Darker background for unchecked state */
-          border-radius: 3px; /* Slightly rounded */
+          accent-color: #0d6efd; /* Standard Bootstrap blue for check */
+          background-color: #555;
+          border-radius: 3px;
           border: 1px solid #777;
+          /* Appearance none needed for custom checkmark styling below */
+          appearance: none;
+          -webkit-appearance: none;
+          width: 1.2em;
+          height: 1.2em;
+          position: relative;
        }
-       /* Style the checkmark itself for better contrast (browser support varies) */
+       /* Custom checkmark */
        .tweak-checkbox-item input[type='checkbox']::before {
-            content: "";
+            content: "✓"; /* Unicode checkmark */
             display: block;
-            width: 100%;
-            height: 100%;
-            background-color: white; /* Ensures checkmark is visible */
-            transform: scale(0); /* Hidden when unchecked */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 1em;
+            font-weight: bold;
+            color: white;
             transition: transform 0.1s ease-in-out;
+            line-height: 1;
+       }
+       .tweak-checkbox-item input[type='checkbox']:checked {
+            background-color: #0d6efd; /* Blue background when checked */
+            border-color: #0d6efd;
        }
        .tweak-checkbox-item input[type='checkbox']:checked::before {
-            transform: scale(0.6); /* Visible checkmark size */
-            /* You might need vendor prefixes depending on browser target */
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 15%, 80% 0%, 43% 62%); /* Checkmark shape */
+            transform: translate(-50%, -50%) scale(1.2); /* Make checkmark visible */
        }
-
 
       .tweak-checkbox-item label {
           cursor: pointer;
           flex-grow: 1;
-          font-size: 1em; /* Adjusted size */
-          color: #e0e0e0; /* Slightly off-white */
+          font-size: 1em;
+          color: #e0e0e0;
+      }
+
+      /* NEW: Footer styling */
+      .tweak-modal-footer {
+        margin-top: 25px; /* Space above the footer */
+        padding-top: 15px; /* Space above the button */
+        border-top: 1px solid #4a4a4a; /* Separator line */
+        display: flex;
+        justify-content: flex-end; /* Align button to the right */
+      }
+
+      /* NEW: Close button styling */
+      #tweak-modal-bottom-close {
+        background-color: #dc3545; /* Red background (Bootstrap danger) */
+        color: white;
+        border: 1px solid #dc3545;
+        padding: 8px 18px; /* Padding */
+        border-radius: 6px; /* Rounded corners */
+        font-size: 0.95em;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+      }
+      #tweak-modal-bottom-close:hover {
+        background-color: #c82333; /* Darker red on hover */
+        border-color: #bd2130;
       }
     `;
     const styleSheet = document.createElement("style");
@@ -206,13 +232,6 @@
     modalElement = document.createElement("div");
     modalElement.id = "tweak-modal";
 
-    // Close Button ('X')
-    const closeButton = document.createElement("button");
-    closeButton.id = "tweak-modal-close";
-    closeButton.innerHTML = "&times;";
-    closeButton.setAttribute("aria-label", "Close Settings");
-    closeButton.addEventListener("click", () => toggleModal(false));
-
     // Header
     const header = document.createElement("h2");
     header.textContent = "UI Tweaks";
@@ -222,11 +241,11 @@
     feedbackElement.id = "tweak-modal-feedback";
     feedbackElement.textContent = " ";
 
-    // NEW: Settings Section Container
+    // Settings Section Container
     const settingsSection = document.createElement("div");
-    settingsSection.className = "tweak-settings-section"; // Add class for styling
+    settingsSection.className = "tweak-settings-section";
 
-    // Checkbox Container (now goes inside settingsSection)
+    // Checkbox Container
     const checkboxContainer = document.createElement("div");
 
     // Define Settings and Labels
@@ -255,17 +274,29 @@
 
       itemDiv.appendChild(checkbox);
       itemDiv.appendChild(label);
-      checkboxContainer.appendChild(itemDiv); // Add item to inner container
+      checkboxContainer.appendChild(itemDiv);
     });
 
-    // Add checkboxContainer to the new section container
     settingsSection.appendChild(checkboxContainer);
 
+    // NEW: Create Footer Container
+    const footer = document.createElement("div");
+    footer.className = "tweak-modal-footer";
+
+    // NEW: Create Bottom Close Button
+    const closeButtonBottom = document.createElement("button");
+    closeButtonBottom.id = "tweak-modal-bottom-close";
+    closeButtonBottom.textContent = "Close";
+    closeButtonBottom.addEventListener("click", () => toggleModal(false));
+
+    // NEW: Append Button to Footer
+    footer.appendChild(closeButtonBottom);
+
     // Assemble Modal structure
-    modalElement.appendChild(closeButton);
     modalElement.appendChild(header);
-    modalElement.appendChild(feedbackElement); // Feedback appears above the section
-    modalElement.appendChild(settingsSection); // Add the styled section
+    modalElement.appendChild(feedbackElement);
+    modalElement.appendChild(settingsSection);
+    modalElement.appendChild(footer); // Add the footer with the close button
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
   }
