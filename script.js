@@ -15,7 +15,8 @@
     // Default to true (hide elements initially) if setting doesn't exist
     const value = localStorage.getItem(key);
     // Ensure we handle null case correctly and parse stored boolean
-    return value === null ? true : JSON.parse(value);
+    // Default to FALSE (don't hide) if setting doesn't exist
+    return value === null ? false : JSON.parse(value);
   }
 
   // Modified function to apply styles based on settings
