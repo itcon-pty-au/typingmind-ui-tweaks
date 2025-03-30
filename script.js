@@ -11,6 +11,7 @@
     newChatButtonColor: "tweak_newChatButtonColor",
     workspaceIconColor: "tweak_workspaceIconColor",
     workspaceFontColor: "tweak_workspaceFontColor",
+    customPageTitle: "tweak_customPageTitle",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -231,6 +232,25 @@
     }
   }
 
+  // --- NEW Function to Apply Custom Page Title ---
+  function applyCustomTitle() {
+    const customTitle = getSetting(settingsKeys.customPageTitle, null);
+    if (
+      customTitle &&
+      typeof customTitle === "string" &&
+      customTitle.trim() !== ""
+    ) {
+      if (document.title !== customTitle) {
+        document.title = customTitle;
+        // Optional: console.log(`${consolePrefix} Page title set to: ${customTitle}`);
+      }
+    } else {
+      // If setting is null/empty, we don't actively reset the title here,
+      // allowing the website's default behavior to take over.
+      // The original title might be dynamic.
+    }
+  }
+
   // --- Modal Elements and Logic ---
   let modalOverlay = null;
   let modalElement = null;
@@ -402,6 +422,38 @@
             background-color: #5a6268;
             border-color: #545b62;
        }
+
+      /* NEW: Text Input Styles (similar to color picker) */
+      .tweak-text-item {
+          margin-top: 20px;
+          padding-top: 15px;
+          border-top: 1px solid #4a4a4a;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+      }
+      .tweak-text-item label {
+          margin-right: 10px;
+          color: #e0e0e0;
+          font-size: 1em;
+          white-space: nowrap; /* Prevent label wrapping */
+      }
+      .tweak-text-input-wrapper {
+           display: flex;
+           align-items: center;
+           flex-grow: 1; /* Allow wrapper to take remaining space */
+      }
+      .tweak-text-item input[type='text'] {
+          flex-grow: 1; /* Allow input to fill space */
+          padding: 6px 10px;
+          border: 1px solid #777;
+          border-radius: 4px;
+          background-color: #555;
+          color: #f0f0f0;
+          font-size: 0.9em;
+          margin-right: 10px;
+      }
+       /* Reuse tweak-reset-button style for clear button */
     `;
     const styleSheet = document.createElement("style");
     styleSheet.innerText = styles;
@@ -582,6 +634,50 @@
     wsFontColorPickerSection.appendChild(wsFontColorInputWrapper);
     // --- End Workspace Font Color Picker Section ---
 
+    // --- NEW: Create Custom Title Input Section ---
+    const customTitleSection = document.createElement("div");
+    customTitleSection.className = "tweak-text-item"; // Use new class
+
+    const titleLabel = document.createElement("label");
+    titleLabel.htmlFor = "tweak_customPageTitle_input";
+    titleLabel.textContent = "Custom Page Title:";
+
+    const titleInputWrapper = document.createElement("div");
+    titleInputWrapper.className = "tweak-text-input-wrapper";
+
+    const titleInput = document.createElement("input");
+    titleInput.type = "text";
+    titleInput.id = "tweak_customPageTitle_input";
+    titleInput.placeholder = "Enter custom title..."; // Placeholder text
+    titleInput.addEventListener("input", (event) => {
+      // Save the raw string value, don't JSON.parse later
+      localStorage.setItem(
+        settingsKeys.customPageTitle,
+        event.target.value || ""
+      );
+      applyCustomTitle(); // Apply immediately
+      if (feedbackElement) feedbackElement.textContent = "Settings saved."; // Update feedback
+    });
+
+    const clearTitleButton = document.createElement("button");
+    clearTitleButton.textContent = "Clear";
+    clearTitleButton.className = "tweak-reset-button"; // Reuse style
+    clearTitleButton.type = "button";
+    clearTitleButton.addEventListener("click", () => {
+      // Save null/empty to clear the setting
+      localStorage.removeItem(settingsKeys.customPageTitle); // Use removeItem or set to ''
+      titleInput.value = ""; // Clear the input field
+      applyCustomTitle(); // Let the original title logic take over
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+
+    // Assemble custom title section
+    titleInputWrapper.appendChild(titleInput);
+    titleInputWrapper.appendChild(clearTitleButton);
+    customTitleSection.appendChild(titleLabel);
+    customTitleSection.appendChild(titleInputWrapper);
+    // --- End Custom Title Input Section ---
+
     // Create Footer Container
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
@@ -602,6 +698,7 @@
     modalElement.appendChild(colorPickerSection);
     modalElement.appendChild(wsIconColorPickerSection);
     modalElement.appendChild(wsFontColorPickerSection);
+    modalElement.appendChild(customTitleSection); // Add the new title input section
     modalElement.appendChild(footer);
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
@@ -613,11 +710,12 @@
 
     // Load checkbox states
     Object.values(settingsKeys).forEach((storageKey) => {
-      // Filter out color settings based on their actual key values
+      // Filter out non-checkbox settings
       if (
         storageKey !== settingsKeys.newChatButtonColor &&
         storageKey !== settingsKeys.workspaceIconColor &&
-        storageKey !== settingsKeys.workspaceFontColor
+        storageKey !== settingsKeys.workspaceFontColor &&
+        storageKey !== settingsKeys.customPageTitle // Exclude new key
       ) {
         // Process as checkbox
         const checkbox = document.getElementById(storageKey); // Use storageKey as ID
@@ -674,6 +772,15 @@
       wsFontColorInput.value = storedWsFontColor
         ? storedWsFontColor
         : defaultWorkspaceFontColorVisual;
+    }
+
+    // Load Custom Page Title state // NEW
+    const titleInput = document.getElementById("tweak_customPageTitle_input");
+    if (titleInput) {
+      // Get raw string value, default to empty string
+      const storedTitle =
+        localStorage.getItem(settingsKeys.customPageTitle) || "";
+      titleInput.value = storedTitle;
     }
 
     // Clear feedback message when opening the modal
@@ -761,8 +868,10 @@
     document.readyState === "interactive"
   ) {
     applyStylesBasedOnSettings();
+    applyCustomTitle(); // Apply title on load
   } else {
     document.addEventListener("DOMContentLoaded", applyStylesBasedOnSettings);
+    document.addEventListener("DOMContentLoaded", applyCustomTitle); // Apply title on load
   }
 
   console.log(
