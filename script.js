@@ -8,17 +8,17 @@
     hideProfile: "tweak_hideProfile",
     hideChatProfiles: "tweak_hideChatProfiles",
     hidePinnedChars: "tweak_hidePinnedChars",
+    newChatButtonColor: "tweak_newChatButtonColor",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
+  const defaultNewChatButtonColor = "#2563eb";
 
   // Function to get settings from localStorage
-  function getSetting(key) {
-    // Default to true (hide elements initially) if setting doesn't exist
+  function getSetting(key, defaultValue = false) {
     const value = localStorage.getItem(key);
-    // Ensure we handle null case correctly and parse stored boolean
-    // Default to FALSE (don't hide) if setting doesn't exist
-    return value === null ? false : JSON.parse(value);
+    // Return the specific default value if null
+    return value === null ? defaultValue : JSON.parse(value);
   }
 
   // Modified function to apply styles based on settings
@@ -29,6 +29,9 @@
     const hideProfile = getSetting(settingsKeys.hideProfile);
     const hideChatProfiles = getSetting(settingsKeys.hideChatProfiles);
     const hidePinnedChars = getSetting(settingsKeys.hidePinnedChars);
+
+    // Get color setting, default to null if not set
+    const newChatColor = getSetting(settingsKeys.newChatButtonColor, null);
 
     // --- Apply Teams button style ---
     const teamsButton = document.querySelector(
@@ -139,6 +142,28 @@
       }
     } else {
       // Optional: console.log(`${consolePrefix} Pinned Characters container not found.`);
+    }
+
+    // --- Apply New Chat button color ---
+    const newChatButton = document.querySelector(
+      'button[data-element-id="new-chat-button-in-side-bar"]'
+    );
+    if (newChatButton) {
+      if (newChatColor) {
+        // Apply user-defined color
+        if (newChatButton.style.backgroundColor !== newChatColor) {
+          newChatButton.style.backgroundColor = newChatColor;
+          // Optional: console.log(`${consolePrefix} New Chat button color set to ${newChatColor}.`);
+        }
+      } else {
+        // Reset to default (remove inline style)
+        if (newChatButton.style.backgroundColor !== "") {
+          newChatButton.style.backgroundColor = "";
+          // Optional: console.log(`${consolePrefix} New Chat button color reset to default.`);
+        }
+      }
+    } else {
+      // Optional: console.log(`${consolePrefix} New Chat button not found.`);
     }
   }
 
@@ -268,6 +293,51 @@
         background-color: #c82333; /* Darker red on hover */
         border-color: #bd2130;
       }
+
+      /* NEW: Color Picker Styles */
+      .tweak-color-item {
+          margin-top: 20px; /* Space above this section */
+          padding-top: 15px;
+          border-top: 1px solid #4a4a4a; /* Separator line */
+          display: flex;
+          align-items: center;
+          justify-content: space-between; /* Align items */
+       }
+      .tweak-color-item label {
+          margin-right: 10px;
+          color: #e0e0e0;
+          font-size: 1em;
+       }
+       .tweak-color-input-wrapper {
+            display: flex;
+            align-items: center;
+       }
+      .tweak-color-item input[type='color'] {
+          width: 40px;
+          height: 30px;
+          border: 1px solid #777;
+          border-radius: 4px;
+          cursor: pointer;
+          background-color: #555; /* Background for the picker itself */
+          margin-right: 10px;
+          padding: 2px; /* Small padding */
+       }
+       /* Optional: Style the reset button */
+       .tweak-reset-button {
+            background-color: #6c757d; /* Grey background (Bootstrap secondary) */
+            color: white;
+            border: 1px solid #6c757d;
+            padding: 4px 10px; /* Smaller padding */
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+       }
+        .tweak-reset-button:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+       }
     `;
     const styleSheet = document.createElement("style");
     styleSheet.innerText = styles;
@@ -342,7 +412,45 @@
 
     settingsSection.appendChild(checkboxContainer);
 
-    // NEW: Create Footer Container
+    // --- NEW: Create Color Picker Section ---
+    const colorPickerSection = document.createElement("div");
+    colorPickerSection.className = "tweak-color-item";
+
+    const colorLabel = document.createElement("label");
+    colorLabel.htmlFor = "tweak_newChatButtonColor_input"; // Match input ID
+    colorLabel.textContent = "New Chat Button Color:";
+
+    const colorInputWrapper = document.createElement("div"); // Wrapper for input + reset
+    colorInputWrapper.className = "tweak-color-input-wrapper";
+
+    const colorInput = document.createElement("input");
+    colorInput.type = "color";
+    colorInput.id = "tweak_newChatButtonColor_input";
+    // Add event listener to save color on change
+    colorInput.addEventListener("input", (event) => {
+      saveSetting(settingsKeys.newChatButtonColor, event.target.value);
+    });
+
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "Reset";
+    resetButton.className = "tweak-reset-button";
+    resetButton.type = "button"; // Prevent form submission if wrapped in form later
+    resetButton.addEventListener("click", () => {
+      // Save null to clear the setting
+      saveSetting(settingsKeys.newChatButtonColor, null);
+      // Reset the color picker's displayed value to default
+      colorInput.value = defaultNewChatButtonColor;
+      // Feedback is handled within saveSetting
+    });
+
+    // Assemble color picker section
+    colorInputWrapper.appendChild(colorInput);
+    colorInputWrapper.appendChild(resetButton);
+    colorPickerSection.appendChild(colorLabel);
+    colorPickerSection.appendChild(colorInputWrapper);
+    // --- End Color Picker Section ---
+
+    // Create Footer Container
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
 
@@ -359,21 +467,37 @@
     modalElement.appendChild(header);
     modalElement.appendChild(feedbackElement);
     modalElement.appendChild(settingsSection);
+    modalElement.appendChild(colorPickerSection); // Add the new color picker section
     modalElement.appendChild(footer); // Add the footer with the close button
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
   }
 
-  // Function to load current settings into the modal's checkboxes
+  // Function to load current settings into the modal's elements
   function loadSettingsIntoModal() {
     if (!modalElement) return; // Ensure modal exists
 
-    Object.values(settingsKeys).forEach((key) => {
-      const checkbox = document.getElementById(key);
-      if (checkbox) {
-        checkbox.checked = getSetting(key); // Set checked state based on localStorage
+    // Load checkbox states
+    Object.keys(settingsKeys).forEach((key) => {
+      // Only process checkbox settings here
+      if (key !== settingsKeys.newChatButtonColor) {
+        const checkbox = document.getElementById(key);
+        if (checkbox) {
+          checkbox.checked = getSetting(key); // Default is false
+        }
       }
     });
+
+    // Load color picker state
+    const colorInput = document.getElementById(
+      "tweak_newChatButtonColor_input"
+    );
+    if (colorInput) {
+      const storedColor = getSetting(settingsKeys.newChatButtonColor, null);
+      // If a color is stored, use it. Otherwise, use the default blue.
+      colorInput.value = storedColor ? storedColor : defaultNewChatButtonColor;
+    }
+
     // Clear feedback message when opening the modal
     if (feedbackElement) feedbackElement.textContent = " ";
   }
