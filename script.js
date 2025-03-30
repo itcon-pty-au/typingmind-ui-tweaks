@@ -6,6 +6,7 @@
     hideKB: "tweak_hideKB",
     hideLogo: "tweak_hideLogo",
     hideProfile: "tweak_hideProfile",
+    hideChatProfiles: "tweak_hideChatProfiles",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -25,6 +26,7 @@
     const hideKB = getSetting(settingsKeys.hideKB);
     const hideLogo = getSetting(settingsKeys.hideLogo);
     const hideProfile = getSetting(settingsKeys.hideProfile);
+    const hideChatProfiles = getSetting(settingsKeys.hideChatProfiles);
 
     // --- Apply Teams button style ---
     const teamsButton = document.querySelector(
@@ -102,6 +104,25 @@
       }
     } else {
       // Optional: console.log(`${consolePrefix} Profile button not found.`);
+    }
+
+    // --- Apply Chat Profiles button style ---
+    const chatProfileSvg = document.querySelector(
+      'svg[data-element-id="user-profile-symbol"]'
+    );
+    if (chatProfileSvg) {
+      const chatProfileButton = chatProfileSvg.closest("button");
+      if (chatProfileButton) {
+        const newDisplay = hideChatProfiles ? "none" : "";
+        if (chatProfileButton.style.display !== newDisplay) {
+          chatProfileButton.style.display = newDisplay;
+          // Optional: console.log(`${consolePrefix} Chat Profiles button display set to '${newDisplay || 'default'}'.`);
+        }
+      } else {
+        // Optional: console.log(`${consolePrefix} Chat Profiles button (parent) not found.`);
+      }
+    } else {
+      // Optional: console.log(`${consolePrefix} Chat Profiles SVG not found.`);
     }
   }
 
@@ -271,6 +292,10 @@
       { key: settingsKeys.hideKB, label: "Hide 'KB' menu item" },
       { key: settingsKeys.hideLogo, label: "Hide Logo & Announcement section" },
       { key: settingsKeys.hideProfile, label: "Hide 'Profile' button" },
+      {
+        key: settingsKeys.hideChatProfiles,
+        label: "Hide 'Chat Profiles' button",
+      },
     ];
 
     // Create Checkbox Items
