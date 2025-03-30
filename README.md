@@ -12,7 +12,7 @@
 9. Set Menu font color
 
 ## Using the extension
-1. Load "[https://itcon-pty-au.github.io/typingmind-cloud-backup/s3.js](https://itcon-pty-au.github.io/typingmind-ui-tweaks/script.js)" into Menu > Preferences > Extension in Typingmind.
+1. Load "[https://itcon-pty-au.github.io/typingmind-ui-tweaks/script.js](https://itcon-pty-au.github.io/typingmind-ui-tweaks/script.js)" into Menu > Preferences > Extension in Typingmind.
 2. The shortcut Shift + Alt + T to open the configuration form.
 
 ## About me
