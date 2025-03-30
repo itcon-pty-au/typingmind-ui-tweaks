@@ -4,6 +4,7 @@
   function hideMenuItems() {
     let teamsHidden = false;
     let kbHidden = false;
+    let logoSectionHidden = false; // Renamed flag
     const consolePrefix = "TypingMind Tweaks:";
 
     // --- Hide Teams button ---
@@ -15,13 +16,10 @@
         teamsButton.style.display = "none";
         console.log(`${consolePrefix} Teams button hidden.`);
       }
-      teamsHidden = true; // Mark as potentially handled
-    } else {
-      // console.log(`${consolePrefix} Teams button not found yet.`);
+      teamsHidden = true;
     }
 
     // --- Hide KB button ---
-    // Find the KB button by its text content within the workspace bar
     const workspaceBar = document.querySelector(
       'div[data-element-id="workspace-bar"]'
     );
@@ -29,71 +27,82 @@
     if (workspaceBar) {
       const buttons = workspaceBar.querySelectorAll("button");
       buttons.forEach((button) => {
-        // Check the direct text content or text within a nested span
-        const textSpan = button.querySelector("span > span"); // Look for the common structure
+        const textSpan = button.querySelector("span > span");
         if (textSpan && textSpan.textContent.trim() === "KB") {
           kbButtonFound = true;
           if (button.style.display !== "none") {
             button.style.display = "none";
             console.log(`${consolePrefix} KB button hidden.`);
           }
-          kbHidden = true; // Mark as potentially handled
-          return; // Exit the forEach loop once found
+          kbHidden = true;
+          return;
         }
       });
     }
-    if (!kbButtonFound) {
-      // console.log(`${consolePrefix} KB button not found yet.`);
+
+    // --- Hide Logo/Announcement Container Div (using logo.png as anchor) ---
+    const logoImage = document.querySelector(
+      'img[alt="TypingMind"][src="/logo.png"]'
+    );
+    let logoContainerDiv = null;
+
+    if (logoImage) {
+      // Go up two levels: img -> div (logo wrapper) -> div (main container)
+      const logoWrapper = logoImage.parentElement;
+      if (
+        logoWrapper &&
+        logoWrapper.parentElement &&
+        logoWrapper.parentElement.tagName === "DIV"
+      ) {
+        logoContainerDiv = logoWrapper.parentElement;
+      }
     }
 
-    // Check if both elements exist in the DOM now, even if already hidden.
-    // This tells the observer if its job might be done.
+    if (logoContainerDiv) {
+      if (logoContainerDiv.style.display !== "none") {
+        logoContainerDiv.style.display = "none";
+        console.log(`${consolePrefix} Logo/Announcement container hidden.`);
+      }
+      logoSectionHidden = true; // Mark as hidden
+    } else {
+      // console.log(`${consolePrefix} Logo/Announcement container not found yet.`);
+    }
+
+    // Check if all target elements exist (even if hidden).
     const teamsButtonExists = !!document.querySelector(
       'button[data-element-id="workspace-tab-teams"]'
     );
     const kbButtonExists = kbButtonFound; // Reuse the flag from search
+    const logoContainerExists = !!logoContainerDiv; // Check if we found it this run
 
-    // If both buttons we intend to hide *exist*, we can potentially stop observing.
-    // If they don't exist yet, the observer needs to keep looking.
-    if (teamsButtonExists && kbButtonExists) {
-      // You could uncomment the next two lines if you want the observer
-      // to stop running once it successfully hides both buttons.
-      // console.log(`${consolePrefix} Both target buttons found. Observer will stop.`);
-      // observer.disconnect();
-      return true; // Indicate that the target elements are present
-    }
+    // Optional: Disconnect observer if all targets are found.
+    // if (teamsButtonExists && kbButtonExists && logoContainerExists) {
+    //   console.log(`${consolePrefix} All target elements found. Observer could stop.`);
+    //   // observer.disconnect(); // Uncomment to stop observing
+    //   return true;
+    // }
 
-    return false; // Indicate that target elements might still be loading
+    // Return true if all elements we *expect* to find *have been found* at least once.
+    return teamsHidden && kbHidden && logoSectionHidden;
   }
 
   // --- Run the hiding logic ---
 
-  // Use MutationObserver to handle elements loading dynamically
   const observer = new MutationObserver((mutationsList, observerInstance) => {
-    // console.log(`${consolePrefix} DOM change detected, checking for buttons...`);
-    // Check if the buttons are now present and hide them
     hideMenuItems();
-
-    // Note: The logic to disconnect the observer is inside hideMenuItems now.
   });
 
-  // Start observing the document body for added nodes and subtree modifications
-  // This is robust for dynamically loaded content.
   observer.observe(document.body, {
     childList: true,
     subtree: true,
   });
 
-  // Also, run the function once immediately in case the elements are already present
-  // when the script executes.
   if (
     document.readyState === "complete" ||
     document.readyState === "interactive"
   ) {
-    // console.log(`${consolePrefix} Running initial check on loaded DOM.`);
     hideMenuItems();
   } else {
-    // console.log(`${consolePrefix} Waiting for DOMContentLoaded.`);
     document.addEventListener("DOMContentLoaded", hideMenuItems);
   }
 })();
