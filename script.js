@@ -195,17 +195,36 @@
 
     // --- Apply Workspace Font color ---
     if (workspaceBar) {
-      if (wsFontColor) {
-        // Apply user-defined color
-        if (workspaceBar.style.color !== wsFontColor) {
-          workspaceBar.style.color = wsFontColor;
+      // Find all span elements within the workspace bar
+      const textSpans = workspaceBar.querySelectorAll("span");
+      textSpans.forEach((span) => {
+        // Apply color directly to the span if it contains text
+        // We might need to refine this selector if it colors unwanted spans
+        if (span.textContent.trim()) {
+          if (wsFontColor) {
+            // Apply user-defined color
+            if (span.style.color !== wsFontColor) {
+              span.style.color = wsFontColor;
+            }
+          } else {
+            // Reset to default (remove inline style)
+            if (span.style.color !== "") {
+              span.style.color = "";
+            }
+          }
         }
-      } else {
-        // Reset to default (remove inline style)
-        if (workspaceBar.style.color !== "") {
-          workspaceBar.style.color = "";
-        }
-      }
+      });
+
+      // Optional: Apply to the bar itself too, in case some elements inherit
+      // if (wsFontColor) {
+      //     if (workspaceBar.style.color !== wsFontColor) {
+      //         workspaceBar.style.color = wsFontColor;
+      //     }
+      // } else {
+      //     if (workspaceBar.style.color !== '') {
+      //        workspaceBar.style.color = '';
+      //     }
+      // }
       // Optional: console.log(`${consolePrefix} Workspace font color updated.`);
     } else {
       // Optional: console.log(`${consolePrefix} Workspace bar not found for font coloring.`);
