@@ -9,10 +9,12 @@
     hideChatProfiles: "tweak_hideChatProfiles",
     hidePinnedChars: "tweak_hidePinnedChars",
     newChatButtonColor: "tweak_newChatButtonColor",
+    workspaceIconColor: "tweak_workspaceIconColor",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
   const defaultNewChatButtonColor = "#2563eb";
+  const defaultWorkspaceIconColorVisual = "#9ca3af";
 
   // Function to get settings from localStorage
   function getSetting(key, defaultValue = false) {
@@ -32,6 +34,7 @@
 
     // Get color setting, default to null if not set
     const newChatColor = getSetting(settingsKeys.newChatButtonColor, null);
+    const wsIconColor = getSetting(settingsKeys.workspaceIconColor, null);
 
     // --- Apply Teams button style ---
     const teamsButton = document.querySelector(
@@ -164,6 +167,27 @@
       }
     } else {
       // Optional: console.log(`${consolePrefix} New Chat button not found.`);
+    }
+
+    // --- Apply Workspace Icon color ---
+    if (workspaceBar) {
+      const icons = workspaceBar.querySelectorAll("svg");
+      icons.forEach((icon) => {
+        if (wsIconColor) {
+          // Apply user-defined color
+          if (icon.style.color !== wsIconColor) {
+            icon.style.color = wsIconColor;
+          }
+        } else {
+          // Reset to default (remove inline style)
+          if (icon.style.color !== "") {
+            icon.style.color = "";
+          }
+        }
+      });
+      // Optional: console.log(`${consolePrefix} Workspace icons color updated.`);
+    } else {
+      // Optional: console.log(`${consolePrefix} Workspace bar not found for icon coloring.`);
     }
   }
 
@@ -450,6 +474,40 @@
     colorPickerSection.appendChild(colorInputWrapper);
     // --- End Color Picker Section ---
 
+    // --- NEW: Create Workspace Icon Color Picker Section ---
+    const wsIconColorPickerSection = document.createElement("div");
+    wsIconColorPickerSection.className = "tweak-color-item"; // Reuse same class
+
+    const wsIconColorLabel = document.createElement("label");
+    wsIconColorLabel.htmlFor = "tweak_workspaceIconColor_input";
+    wsIconColorLabel.textContent = "Workspace Icon Color:";
+
+    const wsIconColorInputWrapper = document.createElement("div");
+    wsIconColorInputWrapper.className = "tweak-color-input-wrapper"; // Reuse class
+
+    const wsIconColorInput = document.createElement("input");
+    wsIconColorInput.type = "color";
+    wsIconColorInput.id = "tweak_workspaceIconColor_input";
+    wsIconColorInput.addEventListener("input", (event) => {
+      saveSetting(settingsKeys.workspaceIconColor, event.target.value);
+    });
+
+    const wsIconResetButton = document.createElement("button");
+    wsIconResetButton.textContent = "Reset";
+    wsIconResetButton.className = "tweak-reset-button"; // Reuse class
+    wsIconResetButton.type = "button";
+    wsIconResetButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.workspaceIconColor, null);
+      wsIconColorInput.value = defaultWorkspaceIconColorVisual; // Reset picker to visual default
+    });
+
+    // Assemble workspace icon color picker section
+    wsIconColorInputWrapper.appendChild(wsIconColorInput);
+    wsIconColorInputWrapper.appendChild(wsIconResetButton);
+    wsIconColorPickerSection.appendChild(wsIconColorLabel);
+    wsIconColorPickerSection.appendChild(wsIconColorInputWrapper);
+    // --- End Workspace Icon Color Picker Section ---
+
     // Create Footer Container
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
@@ -467,8 +525,9 @@
     modalElement.appendChild(header);
     modalElement.appendChild(feedbackElement);
     modalElement.appendChild(settingsSection);
-    modalElement.appendChild(colorPickerSection); // Add the new color picker section
-    modalElement.appendChild(footer); // Add the footer with the close button
+    modalElement.appendChild(colorPickerSection);
+    modalElement.appendChild(wsIconColorPickerSection);
+    modalElement.appendChild(footer);
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
   }
@@ -479,8 +538,11 @@
 
     // Load checkbox states
     Object.keys(settingsKeys).forEach((key) => {
-      // Only process checkbox settings here
-      if (key !== settingsKeys.newChatButtonColor) {
+      // Only process non-color settings here
+      if (
+        key !== settingsKeys.newChatButtonColor &&
+        key !== settingsKeys.workspaceIconColor
+      ) {
         const checkbox = document.getElementById(key);
         if (checkbox) {
           checkbox.checked = getSetting(key); // Default is false
@@ -488,14 +550,33 @@
       }
     });
 
-    // Load color picker state
-    const colorInput = document.getElementById(
+    // Load New Chat color picker state
+    const newChatColorInput = document.getElementById(
       "tweak_newChatButtonColor_input"
     );
-    if (colorInput) {
-      const storedColor = getSetting(settingsKeys.newChatButtonColor, null);
-      // If a color is stored, use it. Otherwise, use the default blue.
-      colorInput.value = storedColor ? storedColor : defaultNewChatButtonColor;
+    if (newChatColorInput) {
+      const storedNewChatColor = getSetting(
+        settingsKeys.newChatButtonColor,
+        null
+      );
+      newChatColorInput.value = storedNewChatColor
+        ? storedNewChatColor
+        : defaultNewChatButtonColor;
+    }
+
+    // Load Workspace Icon color picker state
+    const wsIconColorInput = document.getElementById(
+      "tweak_workspaceIconColor_input"
+    );
+    if (wsIconColorInput) {
+      const storedWsIconColor = getSetting(
+        settingsKeys.workspaceIconColor,
+        null
+      );
+      // If a color is stored, use it. Otherwise, use the visual default grey.
+      wsIconColorInput.value = storedWsIconColor
+        ? storedWsIconColor
+        : defaultWorkspaceIconColorVisual;
     }
 
     // Clear feedback message when opening the modal
