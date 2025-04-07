@@ -657,9 +657,9 @@
   }
   document.addEventListener("keydown", (event) => {
     // macOS: Command (event.metaKey)
-    // Windows/Linux: Ctrl (event.ctrlKey)
+    // Windows/Linux: Alt (event.altKey)
     const isMac = navigator.userAgent.toUpperCase().includes("MAC");
-    const modifierPressed = isMac ? event.metaKey : event.ctrlKey;
+    const modifierPressed = isMac ? event.metaKey : event.altKey;
     if (event.shiftKey && modifierPressed && event.key.toUpperCase() === "T") {
       event.preventDefault();
       event.stopPropagation();
