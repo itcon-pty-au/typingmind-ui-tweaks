@@ -656,9 +656,11 @@
     }
   }
   document.addEventListener("keydown", (event) => {
-    const modifierPressed = event.altKey || event.ctrlKey;
+    // macOS: Command (event.metaKey)
+    // Windows/Linux: Ctrl (event.ctrlKey)
+    const isMac = navigator.userAgent.toUpperCase().includes("MAC");
+    const modifierPressed = isMac ? event.metaKey : event.ctrlKey;
     if (event.shiftKey && modifierPressed && event.key.toUpperCase() === "T") {
-      event.preventDefault();
       event.preventDefault();
       event.stopPropagation();
       toggleModal();
