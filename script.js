@@ -181,10 +181,10 @@
       }
     }
   }
+  applyCustomTitle();
   let modalOverlay = null;
   let modalElement = null;
   let feedbackElement = null;
-
   function createSettingsModal() {
     if (document.getElementById("tweak-modal-overlay")) return;
     const styles = `
@@ -676,6 +676,7 @@
   createSettingsModal();
   const observer = new MutationObserver((mutationsList) => {
     applyStylesBasedOnSettings();
+    applyCustomTitle();
   });
   observer.observe(document.body, {
     childList: true,
