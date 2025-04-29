@@ -987,10 +987,8 @@
   );
 
   function applyCustomFont() {
-    const customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
-    const customFontFamily = localStorage.getItem(
-      settingsKeys.customFontFamily
-    );
+    let customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
+    let customFontFamily = localStorage.getItem(settingsKeys.customFontFamily);
     const styleId = "tweak-custom-font-style";
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
@@ -1002,32 +1000,48 @@
       document.head.appendChild(styleElement);
     }
 
+    // --- NEW: Clean up retrieved values ---
+    const cleanValue = (value) => {
+      if (!value) return null;
+      let cleaned = value.trim();
+      if (
+        (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+        (cleaned.startsWith("'") && cleaned.endsWith("'"))
+      ) {
+        cleaned = cleaned.slice(1, -1);
+      }
+      return cleaned;
+    };
+
+    const cleanedUrl = cleanValue(customFontUrl);
+    const cleanedFamily = cleanValue(customFontFamily);
+    // --- End cleaning ---
+
     // Add @import rule if URL exists
-    if (customFontUrl) {
+    if (cleanedUrl) {
       // Basic validation: check if it looks like a URL
       if (
-        customFontUrl.startsWith("http://") ||
-        customFontUrl.startsWith("https://")
+        cleanedUrl.startsWith("http://") ||
+        cleanedUrl.startsWith("https://")
       ) {
-        cssRules.push(`@import url('${customFontUrl}');`);
+        cssRules.push(`@import url('${cleanedUrl}');`); // Use single quotes for consistency
       } else {
         console.warn(
-          `${consolePrefix} Invalid custom font URL provided: ${customFontUrl}`
+          `${consolePrefix} Invalid custom font URL provided (after cleaning): ${cleanedUrl}`
         );
       }
     }
 
     // Add font-family rule if family name exists
-    if (customFontFamily && customFontFamily.trim() !== "") {
-      // Ensure the font family name is properly quoted if it contains spaces or special chars
-      // Simple check: add quotes if it contains space and isn't already quoted
-      let fontFamilyValue = customFontFamily.trim();
-      if (
-        fontFamilyValue.includes(" ") &&
-        !/^['"].*['"]$/.test(fontFamilyValue)
-      ) {
+    if (cleanedFamily && cleanedFamily.trim() !== "") {
+      // Ensure the font family name is properly quoted if it contains spaces
+      let fontFamilyValue = cleanedFamily.trim(); // Already cleaned, just trim again to be safe
+      if (fontFamilyValue.includes(" ")) {
+        // Always wrap with single quotes if there's a space
         fontFamilyValue = `'${fontFamilyValue}'`;
       }
+      // Else, use the name as-is (CSS allows unquoted names without spaces/special chars)
+
       cssRules.push(`
         [data-element-id="chat-space-background"] {
           font-family: ${fontFamilyValue} !important; /* Use !important to increase specificity */
