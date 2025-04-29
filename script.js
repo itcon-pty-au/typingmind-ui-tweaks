@@ -15,6 +15,8 @@
     showModalButton: "tweak_showModalButton",
     customFontUrl: "tweak_customFontUrl",
     customFontFamily: "tweak_customFontFamily",
+    customFontWeight: "tweak_customFontWeight",
+    customFontStyle: "tweak_customFontStyle",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -688,8 +690,124 @@
     fontFamilyInputWrapper.appendChild(fontFamilyInput);
     fontFamilyInputWrapper.appendChild(clearFontFamilyButton);
     fontFamilySection.appendChild(fontFamilyInputWrapper);
+
+    // Font Weight Select Section
+    const fontWeightSection = document.createElement("div");
+    fontWeightSection.className = "tweak-text-item"; // Reuse class for layout
+    const fontWeightLabel = document.createElement("label"); // Keep label for <select>
+    fontWeightLabel.htmlFor = "tweak_customFontWeight_select";
+    fontWeightLabel.textContent = "Font Weight:";
+    fontWeightLabel.style.marginRight = "10px"; // Add space like original text labels
+    const fontWeightInputWrapper = document.createElement("div");
+    fontWeightInputWrapper.className = "tweak-text-input-wrapper"; // Reuse class
+    const fontWeightSelect = document.createElement("select");
+    fontWeightSelect.id = "tweak_customFontWeight_select";
+    // Apply similar styling as text input for consistency
+    fontWeightSelect.style.flexGrow = "1";
+    fontWeightSelect.style.padding = "6px 10px";
+    fontWeightSelect.style.border = "1px solid #777";
+    fontWeightSelect.style.borderRadius = "4px";
+    fontWeightSelect.style.backgroundColor = "#555";
+    fontWeightSelect.style.color = "#f0f0f0";
+    fontWeightSelect.style.fontSize = "0.9em";
+    fontWeightSelect.style.marginRight = "10px";
+    fontWeightSelect.style.cursor = "pointer";
+
+    const weights = [
+      "normal",
+      "bold",
+      "100",
+      "200",
+      "300",
+      "400",
+      "500",
+      "600",
+      "700",
+      "800",
+      "900",
+    ];
+    weights.forEach((weight) => {
+      const option = document.createElement("option");
+      option.value = weight;
+      option.textContent = weight;
+      fontWeightSelect.appendChild(option);
+    });
+    fontWeightSelect.addEventListener("change", (event) => {
+      const valueToSave =
+        event.target.value === "normal" ? null : event.target.value;
+      saveSetting(settingsKeys.customFontWeight, valueToSave);
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    const clearFontWeightButton = document.createElement("button");
+    clearFontWeightButton.textContent = "Reset";
+    clearFontWeightButton.className = "tweak-reset-button";
+    clearFontWeightButton.type = "button";
+    clearFontWeightButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.customFontWeight, null); // Save null for reset
+      fontWeightSelect.value = "normal"; // Visually reset dropdown
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    fontWeightInputWrapper.appendChild(fontWeightSelect);
+    fontWeightInputWrapper.appendChild(clearFontWeightButton);
+    fontWeightSection.appendChild(fontWeightLabel);
+    fontWeightSection.appendChild(fontWeightInputWrapper);
+
+    // Font Style Select Section
+    const fontStyleSection = document.createElement("div");
+    fontStyleSection.className = "tweak-text-item"; // Reuse class
+    const fontStyleLabel = document.createElement("label"); // Keep label
+    fontStyleLabel.htmlFor = "tweak_customFontStyle_select";
+    fontStyleLabel.textContent = "Font Style:";
+    fontStyleLabel.style.marginRight = "10px";
+    const fontStyleInputWrapper = document.createElement("div");
+    fontStyleInputWrapper.className = "tweak-text-input-wrapper"; // Reuse class
+    const fontStyleSelect = document.createElement("select");
+    fontStyleSelect.id = "tweak_customFontStyle_select";
+    // Apply similar styling
+    fontStyleSelect.style.flexGrow = "1";
+    fontStyleSelect.style.padding = "6px 10px";
+    fontStyleSelect.style.border = "1px solid #777";
+    fontStyleSelect.style.borderRadius = "4px";
+    fontStyleSelect.style.backgroundColor = "#555";
+    fontStyleSelect.style.color = "#f0f0f0";
+    fontStyleSelect.style.fontSize = "0.9em";
+    fontStyleSelect.style.marginRight = "10px";
+    fontStyleSelect.style.cursor = "pointer";
+
+    const styleOptions = ["normal", "italic", "oblique"];
+    styleOptions.forEach((style) => {
+      const option = document.createElement("option");
+      option.value = style;
+      option.textContent = style;
+      fontStyleSelect.appendChild(option);
+    });
+    fontStyleSelect.addEventListener("change", (event) => {
+      const valueToSave =
+        event.target.value === "normal" ? null : event.target.value;
+      saveSetting(settingsKeys.customFontStyle, valueToSave);
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    const clearFontStyleButton = document.createElement("button");
+    clearFontStyleButton.textContent = "Reset";
+    clearFontStyleButton.className = "tweak-reset-button";
+    clearFontStyleButton.type = "button";
+    clearFontStyleButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.customFontStyle, null); // Save null for reset
+      fontStyleSelect.value = "normal"; // Visually reset dropdown
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    fontStyleInputWrapper.appendChild(fontStyleSelect);
+    fontStyleInputWrapper.appendChild(clearFontStyleButton);
+    fontStyleSection.appendChild(fontStyleLabel);
+    fontStyleSection.appendChild(fontStyleInputWrapper);
+
+    // Append font sections to their container
     fontSettingsContainer.appendChild(customFontSection);
     fontSettingsContainer.appendChild(fontFamilySection);
+    fontSettingsContainer.appendChild(fontWeightSection); // Add weight section
+    fontSettingsContainer.appendChild(fontStyleSection); // Add style section
+
+    // Append all settings sections to the scrollable wrapper
     scrollableContent.appendChild(settingsSection);
     scrollableContent.appendChild(colorPickerSection);
     scrollableContent.appendChild(wsIconColorPickerSection);
@@ -800,6 +918,22 @@
         localStorage.getItem(settingsKeys.customFontFamily) || "";
       fontFamilyInput.value = cleanValue(storedFontFamily) || "";
     }
+    const fontWeightSelect = document.getElementById(
+      "tweak_customFontWeight_select"
+    );
+    if (fontWeightSelect) {
+      const storedWeight =
+        localStorage.getItem(settingsKeys.customFontWeight) || "normal";
+      fontWeightSelect.value = storedWeight;
+    }
+    const fontStyleSelect = document.getElementById(
+      "tweak_customFontStyle_select"
+    );
+    if (fontStyleSelect) {
+      const storedStyle =
+        localStorage.getItem(settingsKeys.customFontStyle) || "normal";
+      fontStyleSelect.value = storedStyle;
+    }
     if (feedbackElement) feedbackElement.textContent = " ";
   }
   function saveSetting(key, value) {
@@ -811,7 +945,9 @@
       applyStylesBasedOnSettings();
       if (
         key === settingsKeys.customFontUrl ||
-        key === settingsKeys.customFontFamily
+        key === settingsKeys.customFontFamily ||
+        key === settingsKeys.customFontWeight ||
+        key === settingsKeys.customFontStyle
       ) {
         applyCustomFont();
       }
@@ -984,6 +1120,8 @@
   function applyCustomFont() {
     let customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
     let customFontFamily = localStorage.getItem(settingsKeys.customFontFamily);
+    let customFontWeight = localStorage.getItem(settingsKeys.customFontWeight);
+    let customFontStyle = localStorage.getItem(settingsKeys.customFontStyle);
     const styleId = "tweak-custom-font-style";
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
@@ -996,6 +1134,8 @@
 
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
+    const cleanedWeight = cleanValue(customFontWeight);
+    const cleanedStyle = cleanValue(customFontStyle);
 
     if (cleanedUrl) {
       if (
@@ -1010,18 +1150,31 @@
       }
     }
 
+    // Build rules for the chat space background
+    let chatSpaceRules = [];
     if (cleanedFamily && cleanedFamily.trim() !== "") {
       let fontFamilyValue = cleanedFamily.trim();
       if (fontFamilyValue.includes(" ")) {
         fontFamilyValue = `'${fontFamilyValue}'`;
       }
-
-      cssRules.push(`
-        [data-element-id="chat-space-background"] {
-          font-family: ${fontFamilyValue} !important;
-        }
-      `);
+      chatSpaceRules.push(`  font-family: ${fontFamilyValue} !important;`);
     }
+    if (cleanedWeight) {
+      chatSpaceRules.push(`  font-weight: ${cleanedWeight} !important;`);
+    }
+    if (cleanedStyle) {
+      chatSpaceRules.push(`  font-style: ${cleanedStyle} !important;`);
+    }
+
+    // Add the combined rules for chat space if any exist
+    if (chatSpaceRules.length > 0) {
+      cssRules.push(`
+[data-element-id="chat-space-background"] {
+${chatSpaceRules.join("\n")}
+}
+        `);
+    }
+
     const newStyleContent = cssRules.join("\n");
     if (styleElement.textContent !== newStyleContent) {
       styleElement.textContent = newStyleContent;
