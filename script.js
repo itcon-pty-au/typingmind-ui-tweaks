@@ -777,27 +777,13 @@
           "http://www.w3.org/2000/svg",
           "svg"
         );
-        const styleReferenceSvg = styleReferenceButton.querySelector("svg");
-        if (styleReferenceSvg) {
-          svgIcon.setAttribute(
-            "class",
-            styleReferenceSvg.getAttribute("class") || "w-5 h-5"
-          );
-          svgIcon.setAttribute(
-            "width",
-            styleReferenceSvg.getAttribute("width") || "18"
-          );
-          svgIcon.setAttribute(
-            "height",
-            styleReferenceSvg.getAttribute("height") || "18"
-          );
-        } else {
-          svgIcon.setAttribute("class", "w-5 h-5");
-          svgIcon.setAttribute("width", "18");
-          svgIcon.setAttribute("height", "18");
-        }
+        // Set SVG attributes based on user example for consistent sizing
+        svgIcon.setAttribute("class", "w-4 h-4 flex-shrink-0"); // Use specific class from example
+        svgIcon.setAttribute("width", "18px"); // Use specific width from example
+        svgIcon.setAttribute("height", "18px"); // Use specific height from example
+        svgIcon.setAttribute("viewBox", "0 0 24 24"); // Keep our palette viewBox
         svgIcon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        svgIcon.setAttribute("viewBox", "0 0 24 24");
+        // Apply color based on settings
         const currentWsIconColor = getSetting(
           settingsKeys.workspaceIconColor,
           null
@@ -818,12 +804,9 @@
         iconDiv.appendChild(svgIcon);
 
         const textSpan = document.createElement("span");
-        const styleReferenceTextSpan = styleReferenceButton.querySelector(
-          ":scope > span > span"
-        );
-        if (styleReferenceTextSpan) {
-          textSpan.className = styleReferenceTextSpan.className;
-        }
+        // Set text span class explicitly based on user example
+        textSpan.className =
+          "font-normal self-stretch text-center text-xs leading-4 md:leading-none";
         textSpan.textContent = "Tweaks";
 
         outerSpan.appendChild(iconDiv);
