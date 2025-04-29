@@ -25,6 +25,23 @@
   const defaultWorkspaceIconColorVisual = "#9ca3af";
   const defaultWorkspaceFontColorVisual = "#d1d5db";
   let originalPageTitle = null;
+
+  // Globally define valid font options for dropdowns
+  const weights = [
+    "normal",
+    "bold",
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900",
+  ];
+  const styleOptions = ["normal", "italic"]; // Removed 'oblique'
+
   const cleanValue = (value) => {
     if (!value) return null;
     let cleaned = value.trim();
@@ -632,7 +649,8 @@
     const fontSettingsContainer = document.createElement("div");
     fontSettingsContainer.className = "tweak-settings-section";
     const fontDescription = document.createElement("p");
-    fontDescription.textContent = "Import and apply a custom font: ";
+    fontDescription.textContent =
+      "Import/apply custom font. Font URL must include desired weights (e.g., from Google Fonts selection).";
     fontDescription.style.marginBottom = "15px";
     fontDescription.style.fontSize = "0.9em";
     fontDescription.style.color = "#ccc";
@@ -714,19 +732,6 @@
     fontWeightSelect.style.marginRight = "10px";
     fontWeightSelect.style.cursor = "pointer";
 
-    const weights = [
-      "normal",
-      "bold",
-      "100",
-      "200",
-      "300",
-      "400",
-      "500",
-      "600",
-      "700",
-      "800",
-      "900",
-    ];
     weights.forEach((weight) => {
       const option = document.createElement("option");
       option.value = weight;
@@ -775,7 +780,6 @@
     fontStyleSelect.style.marginRight = "10px";
     fontStyleSelect.style.cursor = "pointer";
 
-    const styleOptions = ["normal", "italic", "oblique"];
     styleOptions.forEach((style) => {
       const option = document.createElement("option");
       option.value = style;
