@@ -22,12 +22,9 @@
   const defaultWorkspaceIconColorVisual = "#9ca3af";
   const defaultWorkspaceFontColorVisual = "#d1d5db";
   let originalPageTitle = null;
-
-  // Helper function to clean stored string values (trim and remove quotes)
   const cleanValue = (value) => {
     if (!value) return null;
     let cleaned = value.trim();
-    // Remove surrounding single or double quotes
     if (
       (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
       (cleaned.startsWith("'") && cleaned.endsWith("'"))
@@ -477,8 +474,6 @@
     feedbackElement = document.createElement("p");
     feedbackElement.id = "tweak-modal-feedback";
     feedbackElement.textContent = " ";
-
-    // Create a wrapper for scrollable content
     const scrollableContent = document.createElement("div");
     scrollableContent.id = "tweak-modal-scrollable-content";
 
@@ -539,7 +534,7 @@
     const resetButton = document.createElement("button");
     resetButton.textContent = "Reset";
     resetButton.className = "tweak-reset-button";
-    resetButton.type = "button"; // Prevent form submission if wrapped in form later
+    resetButton.type = "button";
     resetButton.addEventListener("click", () => {
       saveSetting(settingsKeys.newChatButtonColor, null);
       colorInput.value = defaultNewChatButtonColor;
@@ -631,18 +626,14 @@
     titleInputWrapper.appendChild(clearTitleButton);
     customTitleSection.appendChild(titleInputWrapper);
 
-    // --- Container for Font Settings ---
     const fontSettingsContainer = document.createElement("div");
-    fontSettingsContainer.className = "tweak-settings-section"; // Reuse section style
-    // Add descriptive text
+    fontSettingsContainer.className = "tweak-settings-section";
     const fontDescription = document.createElement("p");
     fontDescription.textContent = "Import and apply a custom font: ";
-    fontDescription.style.marginBottom = "15px"; // Add some space below description
+    fontDescription.style.marginBottom = "15px";
     fontDescription.style.fontSize = "0.9em";
-    fontDescription.style.color = "#ccc"; // Lighter grey for description
+    fontDescription.style.color = "#ccc";
     fontSettingsContainer.appendChild(fontDescription);
-
-    // Font URL Input Section (Create but don't append yet)
     const customFontSection = document.createElement("div");
     customFontSection.className = "tweak-text-item";
     const fontLabel = document.createElement("label");
@@ -655,7 +646,7 @@
     fontInput.id = "tweak_customFontUrl_input";
     fontInput.placeholder = "Font URL (e.g., Google Fonts)";
     fontInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.customFontUrl, event.target.value || null); // Save null if empty
+      saveSetting(settingsKeys.customFontUrl, event.target.value || null);
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
     const clearFontButton = document.createElement("button");
@@ -670,8 +661,6 @@
     fontInputWrapper.appendChild(fontInput);
     fontInputWrapper.appendChild(clearFontButton);
     customFontSection.appendChild(fontInputWrapper);
-
-    // Font Family Input Section (Create but don't append yet)
     const fontFamilySection = document.createElement("div");
     fontFamilySection.className = "tweak-text-item";
     const fontFamilyLabel = document.createElement("label");
@@ -684,7 +673,6 @@
     fontFamilyInput.id = "tweak_customFontFamily_input";
     fontFamilyInput.placeholder = "Font Family Name (e.g., 'Roboto')";
     fontFamilyInput.addEventListener("input", (event) => {
-      // Save the exact string, handle potential quotes by user later if needed
       saveSetting(settingsKeys.customFontFamily, event.target.value || null);
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
@@ -700,30 +688,20 @@
     fontFamilyInputWrapper.appendChild(fontFamilyInput);
     fontFamilyInputWrapper.appendChild(clearFontFamilyButton);
     fontFamilySection.appendChild(fontFamilyInputWrapper);
-
-    // Append font sections to their container
     fontSettingsContainer.appendChild(customFontSection);
     fontSettingsContainer.appendChild(fontFamilySection);
-    // --- End Font Settings Container ---
-
-    // Append all settings sections to the scrollable wrapper
     scrollableContent.appendChild(settingsSection);
     scrollableContent.appendChild(colorPickerSection);
     scrollableContent.appendChild(wsIconColorPickerSection);
     scrollableContent.appendChild(wsFontColorPickerSection);
     scrollableContent.appendChild(customTitleSection);
-
-    // --- Add a Divider ---
     const divider = document.createElement("hr");
     divider.style.borderColor = "#4a4a4a";
     divider.style.borderTopWidth = "1px";
     divider.style.marginTop = "20px";
     divider.style.marginBottom = "20px";
     scrollableContent.appendChild(divider);
-    // --- End Divider ---
-
-    scrollableContent.appendChild(fontSettingsContainer); // Add the font container
-
+    scrollableContent.appendChild(fontSettingsContainer);
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
     const closeButtonBottom = document.createElement("button");
@@ -733,7 +711,7 @@
     footer.appendChild(closeButtonBottom);
     modalElement.appendChild(header);
     modalElement.appendChild(feedbackElement);
-    modalElement.appendChild(scrollableContent); // Add the scrollable wrapper
+    modalElement.appendChild(scrollableContent);
     modalElement.appendChild(footer);
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
@@ -884,12 +862,9 @@
   }
   createSettingsModal();
   const observer = new MutationObserver((mutationsList) => {
-    // Apply settings based on current DOM state
     applyStylesBasedOnSettings();
     applyCustomTitle();
     applyCustomFont();
-
-    // --- Observer-based Button Insertion Logic Start ---
     const workspaceBar = document.querySelector(
       'div[data-element-id="workspace-bar"]'
     );
@@ -903,20 +878,14 @@
       );
       const profileButton = document.querySelector(
         'button[data-element-id="workspace-profile-button"]'
-      ); // Need profile as fallback
-      const styleReferenceButton = syncButton || profileButton; // Use sync first
-
-      // Only proceed if the tweaks button doesn't exist yet, but the settings button DOES, and we have a style reference
+      );
+      const styleReferenceButton = syncButton || profileButton;
       if (!tweaksButton && settingsButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
-
-        // Copy button classes
         tweaksButton.className = styleReferenceButton.className;
-
-        // Replicate inner structure
         const outerSpan = document.createElement("span");
         const styleReferenceOuterSpan =
           styleReferenceButton.querySelector(":scope > span");
@@ -932,22 +901,19 @@
           iconDiv.className = styleReferenceIconDiv.className;
         }
         iconDiv.style.position = "relative";
-        // Add flex centering to the icon container div
         iconDiv.style.display = "flex";
         iconDiv.style.justifyContent = "center";
-        iconDiv.style.alignItems = "center"; // Also center vertically just in case
+        iconDiv.style.alignItems = "center";
 
         const svgIcon = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
         );
-        // Set SVG attributes - trying w-5 h-5 for larger size
-        svgIcon.setAttribute("class", "w-5 h-5 flex-shrink-0"); // Use w-5 h-5 class
+        svgIcon.setAttribute("class", "w-5 h-5 flex-shrink-0");
         svgIcon.setAttribute("width", "18px");
         svgIcon.setAttribute("height", "18px");
-        svgIcon.setAttribute("viewBox", "0 0 24 24"); // Keep our palette viewBox
+        svgIcon.setAttribute("viewBox", "0 0 24 24");
         svgIcon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        // Apply color based on settings
         const currentWsIconColor = getSetting(
           settingsKeys.workspaceIconColor,
           null
@@ -968,7 +934,6 @@
         iconDiv.appendChild(svgIcon);
 
         const textSpan = document.createElement("span");
-        // Set text span class explicitly based on user example
         textSpan.className =
           "font-normal self-stretch text-center text-xs leading-4 md:leading-none";
         textSpan.textContent = "Tweaks";
@@ -982,13 +947,8 @@
           e.stopPropagation();
           toggleModal(true);
         });
-
-        // Insert directly before the settings button
-        // Use the settingsButton's actual parent node for insertion
         if (settingsButton.parentNode) {
-          // Check if parent exists
           settingsButton.parentNode.insertBefore(tweaksButton, settingsButton);
-          // Apply initial visibility after insertion
           const showModalButtonSetting = getSetting(
             settingsKeys.showModalButton,
             true
@@ -998,11 +958,10 @@
         } else {
           console.warn(
             `${consolePrefix} Could not insert Tweaks button, settings button has no parent node.`
-          ); // Updated warning
+          );
         }
       }
     }
-    // --- Observer-based Button Insertion Logic End ---
   });
 
   observer.observe(document.body, {
@@ -1029,51 +988,40 @@
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
 
-    // Create or get the style element
     if (!styleElement) {
       styleElement = document.createElement("style");
       styleElement.id = styleId;
       document.head.appendChild(styleElement);
     }
 
-    // --- Use the globally defined cleanValue ---
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
-    // --- End cleaning ---
 
-    // Add @import rule if URL exists
     if (cleanedUrl) {
-      // Basic validation: check if it looks like a URL
       if (
         cleanedUrl.startsWith("http://") ||
         cleanedUrl.startsWith("https://")
       ) {
-        cssRules.push(`@import url('${cleanedUrl}');`); // Use single quotes for consistency
+        cssRules.push(`@import url('${cleanedUrl}');`);
       } else {
         console.warn(
-          `${consolePrefix} Invalid custom font URL provided (after cleaning): ${cleanedUrl}`
+          `${consolePrefix} Invalid custom font URL provided: ${cleanedUrl}`
         );
       }
     }
 
-    // Add font-family rule if family name exists
     if (cleanedFamily && cleanedFamily.trim() !== "") {
-      // Ensure the font family name is properly quoted if it contains spaces
-      let fontFamilyValue = cleanedFamily.trim(); // Already cleaned, just trim again to be safe
+      let fontFamilyValue = cleanedFamily.trim();
       if (fontFamilyValue.includes(" ")) {
-        // Always wrap with single quotes if there's a space
         fontFamilyValue = `'${fontFamilyValue}'`;
       }
-      // Else, use the name as-is (CSS allows unquoted names without spaces/special chars)
 
       cssRules.push(`
         [data-element-id="chat-space-background"] {
-          font-family: ${fontFamilyValue} !important; /* Use !important to increase specificity */
+          font-family: ${fontFamilyValue} !important;
         }
       `);
     }
-
-    // Apply the combined CSS rules
     const newStyleContent = cssRules.join("\n");
     if (styleElement.textContent !== newStyleContent) {
       styleElement.textContent = newStyleContent;
