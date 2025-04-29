@@ -772,15 +772,19 @@
           iconDiv.className = styleReferenceIconDiv.className;
         }
         iconDiv.style.position = "relative";
+        // Add flex centering to the icon container div
+        iconDiv.style.display = "flex";
+        iconDiv.style.justifyContent = "center";
+        iconDiv.style.alignItems = "center"; // Also center vertically just in case
 
         const svgIcon = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
         );
-        // Set SVG attributes based on user example for consistent sizing
-        svgIcon.setAttribute("class", "w-4 h-4 flex-shrink-0"); // Use specific class from example
-        svgIcon.setAttribute("width", "18px"); // Use specific width from example
-        svgIcon.setAttribute("height", "18px"); // Use specific height from example
+        // Set SVG attributes - trying w-5 h-5 for larger size
+        svgIcon.setAttribute("class", "w-5 h-5 flex-shrink-0"); // Use w-5 h-5 class
+        svgIcon.setAttribute("width", "18px");
+        svgIcon.setAttribute("height", "18px");
         svgIcon.setAttribute("viewBox", "0 0 24 24"); // Keep our palette viewBox
         svgIcon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
         // Apply color based on settings
