@@ -403,8 +403,6 @@
       /* NEW: Text Input Styles (similar to color picker) */
       .tweak-text-item {
           margin-top: 20px;
-          padding-top: 15px;
-          border-top: 1px solid #4a4a4a;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -424,6 +422,7 @@
           flex-grow: 1; /* Still try to fill space */
           flex-shrink: 1; /* Allow shrinking */
           min-width: 50px; /* Prevent shrinking too much */
+          flex-basis: auto; /* Let browser determine initial size */
           padding: 6px 10px;
           border: 1px solid #777;
           border-radius: 4px;
