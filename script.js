@@ -837,9 +837,10 @@
         });
 
         // Insert directly before the settings button
-        if (settingsButton.parentNode === workspaceBar) {
-          // Final check
-          workspaceBar.insertBefore(tweaksButton, settingsButton);
+        // Use the settingsButton's actual parent node for insertion
+        if (settingsButton.parentNode) {
+          // Check if parent exists
+          settingsButton.parentNode.insertBefore(tweaksButton, settingsButton);
           // Apply initial visibility after insertion
           const showModalButtonSetting = getSetting(
             settingsKeys.showModalButton,
@@ -849,8 +850,8 @@
           tweaksButton.style.display = newDisplay;
         } else {
           console.warn(
-            `${consolePrefix} Could not insert Tweaks button, settings button parent mismatch.`
-          );
+            `${consolePrefix} Could not insert Tweaks button, settings button has no parent node.`
+          ); // Updated warning
         }
       }
     }
