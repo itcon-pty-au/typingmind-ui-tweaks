@@ -23,6 +23,20 @@
   const defaultWorkspaceFontColorVisual = "#d1d5db";
   let originalPageTitle = null;
 
+  // Helper function to clean stored string values (trim and remove quotes)
+  const cleanValue = (value) => {
+    if (!value) return null;
+    let cleaned = value.trim();
+    // Remove surrounding single or double quotes
+    if (
+      (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+      (cleaned.startsWith("'") && cleaned.endsWith("'"))
+    ) {
+      cleaned = cleaned.slice(1, -1);
+    }
+    return cleaned;
+  };
+
   function getSetting(key, defaultValue = false) {
     const value = localStorage.getItem(key);
     return value === null ? defaultValue : JSON.parse(value);
@@ -619,6 +633,19 @@
     customTitleSection.appendChild(titleLabel);
     customTitleSection.appendChild(titleInputWrapper);
 
+    // --- Container for Font Settings ---
+    const fontSettingsContainer = document.createElement("div");
+    fontSettingsContainer.className = "tweak-settings-section"; // Reuse section style
+    // Add descriptive text
+    const fontDescription = document.createElement("p");
+    fontDescription.textContent =
+      "Import and apply a custom font (usually requires both URL and Name):";
+    fontDescription.style.marginBottom = "15px"; // Add some space below description
+    fontDescription.style.fontSize = "0.9em";
+    fontDescription.style.color = "#ccc"; // Lighter grey for description
+    fontSettingsContainer.appendChild(fontDescription);
+
+    // Font URL Input Section (Create but don't append yet)
     const customFontSection = document.createElement("div");
     customFontSection.className = "tweak-text-item";
     const fontLabel = document.createElement("label");
@@ -648,7 +675,7 @@
     customFontSection.appendChild(fontLabel);
     customFontSection.appendChild(fontInputWrapper);
 
-    // Font Family Input Section
+    // Font Family Input Section (Create but don't append yet)
     const fontFamilySection = document.createElement("div");
     fontFamilySection.className = "tweak-text-item";
     const fontFamilyLabel = document.createElement("label");
@@ -679,14 +706,18 @@
     fontFamilySection.appendChild(fontFamilyLabel);
     fontFamilySection.appendChild(fontFamilyInputWrapper);
 
+    // Append font sections to their container
+    fontSettingsContainer.appendChild(customFontSection);
+    fontSettingsContainer.appendChild(fontFamilySection);
+    // --- End Font Settings Container ---
+
     // Append all settings sections to the scrollable wrapper
     scrollableContent.appendChild(settingsSection);
     scrollableContent.appendChild(colorPickerSection);
     scrollableContent.appendChild(wsIconColorPickerSection);
     scrollableContent.appendChild(wsFontColorPickerSection);
     scrollableContent.appendChild(customTitleSection);
-    scrollableContent.appendChild(customFontSection);
-    scrollableContent.appendChild(fontFamilySection);
+    scrollableContent.appendChild(fontSettingsContainer); // Add the font container
 
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
@@ -776,7 +807,7 @@
     if (fontInput) {
       const storedFontUrl =
         localStorage.getItem(settingsKeys.customFontUrl) || "";
-      fontInput.value = storedFontUrl;
+      fontInput.value = cleanValue(storedFontUrl) || "";
     }
     const fontFamilyInput = document.getElementById(
       "tweak_customFontFamily_input"
@@ -784,7 +815,7 @@
     if (fontFamilyInput) {
       const storedFontFamily =
         localStorage.getItem(settingsKeys.customFontFamily) || "";
-      fontFamilyInput.value = storedFontFamily;
+      fontFamilyInput.value = cleanValue(storedFontFamily) || "";
     }
     if (feedbackElement) feedbackElement.textContent = " ";
   }
@@ -1000,19 +1031,7 @@
       document.head.appendChild(styleElement);
     }
 
-    // --- NEW: Clean up retrieved values ---
-    const cleanValue = (value) => {
-      if (!value) return null;
-      let cleaned = value.trim();
-      if (
-        (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
-        (cleaned.startsWith("'") && cleaned.endsWith("'"))
-      ) {
-        cleaned = cleaned.slice(1, -1);
-      }
-      return cleaned;
-    };
-
+    // --- Use the globally defined cleanValue ---
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
     // --- End cleaning ---
