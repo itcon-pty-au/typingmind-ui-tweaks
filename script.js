@@ -13,6 +13,8 @@
     workspaceFontColor: "tweak_workspaceFontColor",
     customPageTitle: "tweak_customPageTitle",
     showModalButton: "tweak_showModalButton",
+    customFontUrl: "tweak_customFontUrl",
+    customFontFamily: "tweak_customFontFamily",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -582,6 +584,67 @@
     titleInputWrapper.appendChild(clearTitleButton);
     customTitleSection.appendChild(titleLabel);
     customTitleSection.appendChild(titleInputWrapper);
+
+    const customFontSection = document.createElement("div");
+    customFontSection.className = "tweak-text-item";
+    const fontLabel = document.createElement("label");
+    fontLabel.htmlFor = "tweak_customFontUrl_input";
+    fontLabel.textContent = "Custom Font URL:";
+    const fontInputWrapper = document.createElement("div");
+    fontInputWrapper.className = "tweak-text-input-wrapper";
+    const fontInput = document.createElement("input");
+    fontInput.type = "text";
+    fontInput.id = "tweak_customFontUrl_input";
+    fontInput.placeholder = "e.g., Google Fonts URL";
+    fontInput.addEventListener("input", (event) => {
+      saveSetting(settingsKeys.customFontUrl, event.target.value || null); // Save null if empty
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    const clearFontButton = document.createElement("button");
+    clearFontButton.textContent = "Clear";
+    clearFontButton.className = "tweak-reset-button";
+    clearFontButton.type = "button";
+    clearFontButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.customFontUrl, null);
+      fontInput.value = "";
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    fontInputWrapper.appendChild(fontInput);
+    fontInputWrapper.appendChild(clearFontButton);
+    customFontSection.appendChild(fontLabel);
+    customFontSection.appendChild(fontInputWrapper);
+
+    // Font Family Input Section
+    const fontFamilySection = document.createElement("div");
+    fontFamilySection.className = "tweak-text-item";
+    const fontFamilyLabel = document.createElement("label");
+    fontFamilyLabel.htmlFor = "tweak_customFontFamily_input";
+    fontFamilyLabel.textContent = "Font Family Name:";
+    const fontFamilyInputWrapper = document.createElement("div");
+    fontFamilyInputWrapper.className = "tweak-text-input-wrapper";
+    const fontFamilyInput = document.createElement("input");
+    fontFamilyInput.type = "text";
+    fontFamilyInput.id = "tweak_customFontFamily_input";
+    fontFamilyInput.placeholder = "e.g., 'Roboto', 'Open Sans'"; // Added quotes for clarity
+    fontFamilyInput.addEventListener("input", (event) => {
+      // Save the exact string, handle potential quotes by user later if needed
+      saveSetting(settingsKeys.customFontFamily, event.target.value || null);
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    const clearFontFamilyButton = document.createElement("button");
+    clearFontFamilyButton.textContent = "Clear";
+    clearFontFamilyButton.className = "tweak-reset-button";
+    clearFontFamilyButton.type = "button";
+    clearFontFamilyButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.customFontFamily, null);
+      fontFamilyInput.value = "";
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    fontFamilyInputWrapper.appendChild(fontFamilyInput);
+    fontFamilyInputWrapper.appendChild(clearFontFamilyButton);
+    fontFamilySection.appendChild(fontFamilyLabel);
+    fontFamilySection.appendChild(fontFamilyInputWrapper);
+
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
     const closeButtonBottom = document.createElement("button");
@@ -596,6 +659,8 @@
     modalElement.appendChild(wsIconColorPickerSection);
     modalElement.appendChild(wsFontColorPickerSection);
     modalElement.appendChild(customTitleSection);
+    modalElement.appendChild(customFontSection);
+    modalElement.appendChild(fontFamilySection);
     modalElement.appendChild(footer);
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
@@ -670,6 +735,20 @@
         localStorage.getItem(settingsKeys.customPageTitle) || "";
       titleInput.value = storedTitle;
     }
+    const fontInput = document.getElementById("tweak_customFontUrl_input");
+    if (fontInput) {
+      const storedFontUrl =
+        localStorage.getItem(settingsKeys.customFontUrl) || "";
+      fontInput.value = storedFontUrl;
+    }
+    const fontFamilyInput = document.getElementById(
+      "tweak_customFontFamily_input"
+    );
+    if (fontFamilyInput) {
+      const storedFontFamily =
+        localStorage.getItem(settingsKeys.customFontFamily) || "";
+      fontFamilyInput.value = storedFontFamily;
+    }
     if (feedbackElement) feedbackElement.textContent = " ";
   }
   function saveSetting(key, value) {
@@ -679,6 +758,12 @@
         feedbackElement.textContent = "Settings saved.";
       }
       applyStylesBasedOnSettings();
+      if (
+        key === settingsKeys.customFontUrl ||
+        key === settingsKeys.customFontFamily
+      ) {
+        applyCustomFont();
+      }
     } catch (error) {
       console.error(`${consolePrefix} Error saving setting ${key}:`, error);
       if (feedbackElement) {
@@ -722,12 +807,14 @@
     }
     applyStylesBasedOnSettings();
     applyCustomTitle();
+    applyCustomFont();
   }
   createSettingsModal();
   const observer = new MutationObserver((mutationsList) => {
     // Apply settings based on current DOM state
     applyStylesBasedOnSettings();
     applyCustomTitle();
+    applyCustomFont();
 
     // --- Observer-based Button Insertion Logic Start ---
     const workspaceBar = document.querySelector(
@@ -861,4 +948,60 @@
   console.log(
     `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings.`
   );
+
+  function applyCustomFont() {
+    const customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
+    const customFontFamily = localStorage.getItem(
+      settingsKeys.customFontFamily
+    );
+    const styleId = "tweak-custom-font-style";
+    let styleElement = document.getElementById(styleId);
+    let cssRules = [];
+
+    // Create or get the style element
+    if (!styleElement) {
+      styleElement = document.createElement("style");
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
+    }
+
+    // Add @import rule if URL exists
+    if (customFontUrl) {
+      // Basic validation: check if it looks like a URL
+      if (
+        customFontUrl.startsWith("http://") ||
+        customFontUrl.startsWith("https://")
+      ) {
+        cssRules.push(`@import url('${customFontUrl}');`);
+      } else {
+        console.warn(
+          `${consolePrefix} Invalid custom font URL provided: ${customFontUrl}`
+        );
+      }
+    }
+
+    // Add font-family rule if family name exists
+    if (customFontFamily && customFontFamily.trim() !== "") {
+      // Ensure the font family name is properly quoted if it contains spaces or special chars
+      // Simple check: add quotes if it contains space and isn't already quoted
+      let fontFamilyValue = customFontFamily.trim();
+      if (
+        fontFamilyValue.includes(" ") &&
+        !/^['"].*['"]$/.test(fontFamilyValue)
+      ) {
+        fontFamilyValue = `'${fontFamilyValue}'`;
+      }
+      cssRules.push(`
+        [data-element-id="chat-space-background"] {
+          font-family: ${fontFamilyValue} !important; /* Use !important to increase specificity */
+        }
+      `);
+    }
+
+    // Apply the combined CSS rules
+    const newStyleContent = cssRules.join("\n");
+    if (styleElement.textContent !== newStyleContent) {
+      styleElement.textContent = newStyleContent;
+    }
+  }
 })();
