@@ -16,7 +16,6 @@
     customFontUrl: "tweak_customFontUrl",
     customFontFamily: "tweak_customFontFamily",
     customFontSize: "tweak_customFontSize",
-    customLineHeight: "tweak_customLineHeight",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -896,8 +895,7 @@
       if (
         key === settingsKeys.customFontUrl ||
         key === settingsKeys.customFontFamily ||
-        key === settingsKeys.customFontSize ||
-        key === settingsKeys.customLineHeight
+        key === settingsKeys.customFontSize
       ) {
         applyCustomFont();
       }
@@ -1071,7 +1069,6 @@
     let customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
     let customFontFamily = localStorage.getItem(settingsKeys.customFontFamily);
     let customFontSize = localStorage.getItem(settingsKeys.customFontSize);
-    let customLineHeight = localStorage.getItem(settingsKeys.customLineHeight);
     const styleId = "tweak-custom-font-style";
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
@@ -1085,7 +1082,6 @@
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
     const cleanedSize = cleanValue(customFontSize);
-    const cleanedLineHeight = cleanValue(customLineHeight);
 
     if (cleanedUrl) {
       if (
