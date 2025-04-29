@@ -808,6 +808,7 @@
     const fontSizeInput = document.createElement("input");
     fontSizeInput.type = "number";
     fontSizeInput.id = "tweak_customFontSize_input";
+    fontSizeInput.placeholder = "Font Size (px)";
     fontSizeInput.min = "8";
     fontSizeInput.step = "1";
     fontSizeInput.style.flexGrow = "1";
@@ -845,13 +846,12 @@
     });
     fontSizeInputWrapper.appendChild(fontSizeInput);
     fontSizeInputWrapper.appendChild(clearFontSizeButton);
-    fontSizeSection.appendChild(fontSizeLabel);
     fontSizeSection.appendChild(fontSizeInputWrapper);
     fontSettingsContainer.appendChild(customFontSection);
     fontSettingsContainer.appendChild(fontFamilySection);
+    fontSettingsContainer.appendChild(fontSizeSection);
     fontSettingsContainer.appendChild(fontWeightSection);
     fontSettingsContainer.appendChild(fontStyleSection);
-    fontSettingsContainer.appendChild(fontSizeSection);
     scrollableContent.appendChild(settingsSection);
     scrollableContent.appendChild(colorPickerSection);
     scrollableContent.appendChild(wsIconColorPickerSection);
