@@ -16,6 +16,7 @@
     customFontUrl: "tweak_customFontUrl",
     customFontFamily: "tweak_customFontFamily",
     customFontSize: "tweak_customFontSize",
+    customLineHeight: "tweak_customLineHeight",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -747,9 +748,63 @@
     fontSizeInputWrapper.appendChild(fontSizeInput);
     fontSizeInputWrapper.appendChild(clearFontSizeButton);
     fontSizeSection.appendChild(fontSizeInputWrapper);
+
+    // Line Height Input Section
+    const lineHeightSection = document.createElement("div");
+    lineHeightSection.className = "tweak-text-item";
+    const lineHeightInputWrapper = document.createElement("div");
+    lineHeightInputWrapper.className = "tweak-text-input-wrapper";
+    const lineHeightInput = document.createElement("input");
+    lineHeightInput.type = "number";
+    lineHeightInput.id = "tweak_customLineHeight_input";
+    lineHeightInput.placeholder = "Line Height (e.g., 1.6)"; // Placeholder instead of label
+    lineHeightInput.min = "0.5"; // Set a reasonable minimum
+    lineHeightInput.step = "0.1"; // Allow increments of 0.1
+    lineHeightInput.style.flexGrow = "1";
+    lineHeightInput.style.padding = "6px 10px";
+    lineHeightInput.style.border = "1px solid #777";
+    lineHeightInput.style.borderRadius = "4px";
+    lineHeightInput.style.backgroundColor = "#555";
+    lineHeightInput.style.color = "#f0f0f0";
+    lineHeightInput.style.fontSize = "0.9em";
+    lineHeightInput.style.marginRight = "10px";
+
+    lineHeightInput.addEventListener("input", (event) => {
+      const valueRaw = event.target.value;
+      // Allow float, store as number if valid, otherwise null
+      const valueToSave = valueRaw ? parseFloat(valueRaw) : null;
+      if (
+        valueToSave !== null &&
+        valueToSave >= parseFloat(lineHeightInput.min)
+      ) {
+        saveSetting(settingsKeys.customLineHeight, valueToSave);
+      } else if (valueToSave === null || valueRaw === "") {
+        saveSetting(settingsKeys.customLineHeight, null); // Allow clearing
+      } else {
+        // Optionally handle invalid input (below min)
+      }
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    const clearLineHeightButton = document.createElement("button");
+    clearLineHeightButton.textContent = "Clear";
+    clearLineHeightButton.className = "tweak-reset-button";
+    clearLineHeightButton.type = "button";
+    clearLineHeightButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.customLineHeight, null); // Save null for reset
+      lineHeightInput.value = ""; // Clear the input visually
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    lineHeightInputWrapper.appendChild(lineHeightInput);
+    lineHeightInputWrapper.appendChild(clearLineHeightButton);
+    lineHeightSection.appendChild(lineHeightInputWrapper);
+
+    // Append font sections to their container
     fontSettingsContainer.appendChild(customFontSection);
     fontSettingsContainer.appendChild(fontFamilySection);
     fontSettingsContainer.appendChild(fontSizeSection);
+    fontSettingsContainer.appendChild(lineHeightSection); // Add line height section
+
+    // Append all settings sections to the scrollable wrapper
     scrollableContent.appendChild(settingsSection);
     scrollableContent.appendChild(colorPickerSection);
     scrollableContent.appendChild(wsIconColorPickerSection);
@@ -878,6 +933,29 @@
       }
       fontSizeInput.value = sizeToSet;
     }
+    const lineHeightInput = document.getElementById(
+      "tweak_customLineHeight_input"
+    );
+    if (lineHeightInput) {
+      const storedLineHeightString = localStorage.getItem(
+        settingsKeys.customLineHeight
+      );
+      let lineHeightToSet = ""; // Default empty
+      if (storedLineHeightString && storedLineHeightString !== "null") {
+        try {
+          const parsedLineHeight = JSON.parse(storedLineHeightString); // Should be number
+          if (typeof parsedLineHeight === "number" && parsedLineHeight > 0) {
+            lineHeightToSet = parsedLineHeight;
+          }
+        } catch (e) {
+          console.error(
+            `${consolePrefix} Error parsing stored line height:`,
+            e
+          );
+        }
+      }
+      lineHeightInput.value = lineHeightToSet;
+    }
     if (feedbackElement) feedbackElement.textContent = " ";
   }
   function saveSetting(key, value) {
@@ -895,7 +973,8 @@
       if (
         key === settingsKeys.customFontUrl ||
         key === settingsKeys.customFontFamily ||
-        key === settingsKeys.customFontSize
+        key === settingsKeys.customFontSize ||
+        key === settingsKeys.customLineHeight
       ) {
         applyCustomFont();
       }
@@ -1069,6 +1148,7 @@
     let customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
     let customFontFamily = localStorage.getItem(settingsKeys.customFontFamily);
     let customFontSize = localStorage.getItem(settingsKeys.customFontSize);
+    let customLineHeight = localStorage.getItem(settingsKeys.customLineHeight);
     const styleId = "tweak-custom-font-style";
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
@@ -1082,6 +1162,7 @@
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
     const cleanedSize = cleanValue(customFontSize);
+    const cleanedLineHeight = cleanValue(customLineHeight);
 
     if (cleanedUrl) {
       if (
@@ -1095,42 +1176,35 @@
         );
       }
     }
-    let chatSpaceRules = [];
-    if (cleanedFamily && cleanedFamily.trim() !== "") {
-      let fontFamilyValue = cleanedFamily.trim();
-      if (fontFamilyValue.includes(" ")) {
-        fontFamilyValue = `'${fontFamilyValue}'`;
-      }
-      chatSpaceRules.push(`  font-family: ${fontFamilyValue} !important;`);
-    }
+
+    // --- Apply base font size and line height to the container ---
+    let containerRules = [];
     if (
       cleanedSize &&
       !isNaN(parseInt(cleanedSize, 10)) &&
       parseInt(cleanedSize, 10) > 0
     ) {
-      chatSpaceRules.push(`  font-size: ${cleanedSize}px !important;`);
+      containerRules.push(`  font-size: ${cleanedSize}px !important;`);
     }
-    if (chatSpaceRules.length > 0) {
-      const rulesString = chatSpaceRules.join("\n");
+    if (
+      cleanedLineHeight &&
+      !isNaN(parseFloat(cleanedLineHeight)) &&
+      parseFloat(cleanedLineHeight) > 0
+    ) {
+      // Line height is unitless
+      containerRules.push(`  line-height: ${cleanedLineHeight} !important;`);
+    }
+
+    if (containerRules.length > 0) {
       cssRules.push(`
-[data-element-id="chat-space-middle-part"] .prose,
-[data-element-id="chat-space-middle-part"] .prose-sm,
-[data-element-id="chat-space-middle-part"] .text-sm {
-${rulesString}
+[data-element-id="chat-space-middle-part"] {
+${containerRules.join("\n")}
 }
         `);
     }
-    if (
-      cleanedSize &&
-      !isNaN(parseInt(cleanedSize, 10)) &&
-      parseInt(cleanedSize, 10) > 0
-    ) {
-      cssRules.push(`
-[data-element-id="chat-space-middle-part"] {
-  font-size: ${cleanedSize}px !important; /* Set base size on container */
-}
-      `);
-    }
+    // --- End container rules ---
+
+    // Build rules for specific text elements inside the container (Family only)
     let textElementRules = [];
     if (cleanedFamily && cleanedFamily.trim() !== "") {
       let fontFamilyValue = cleanedFamily.trim();
@@ -1139,8 +1213,11 @@ ${rulesString}
       }
       textElementRules.push(`  font-family: ${fontFamilyValue} !important;`);
     }
+
+    // Add the combined rules for text elements if any exist
     if (textElementRules.length > 0) {
       const rulesString = textElementRules.join("\n");
+      // Apply only font-family to specific text elements
       cssRules.push(`
 [data-element-id="chat-space-middle-part"] .prose,
 [data-element-id="chat-space-middle-part"] .prose-sm,
