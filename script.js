@@ -417,6 +417,35 @@
           margin-right: 10px;
       }
        /* Reuse tweak-reset-button style for clear button */
+
+      /* NEW: Scrollable Content Area */
+      #tweak-modal-scrollable-content {
+        max-height: calc(80vh - 200px); /* Adjust max height (80% viewport height minus header/footer/padding) */
+        overflow-y: auto; /* Enable vertical scrollbar only when needed */
+        overflow-x: hidden; /* Prevent horizontal scrollbar */
+        padding-right: 15px; /* Space for scrollbar */
+        margin-right: -15px; /* Counteract padding to keep content aligned */
+      }
+
+      /* NEW: Custom Scrollbar Styles (WebKit) */
+      #tweak-modal-scrollable-content::-webkit-scrollbar {
+        width: 8px; /* Width of the scrollbar */
+      }
+      #tweak-modal-scrollable-content::-webkit-scrollbar-track {
+        background: #444; /* Track color */
+        border-radius: 4px;
+      }
+      #tweak-modal-scrollable-content::-webkit-scrollbar-thumb {
+        background-color: #888; /* Handle color */
+        border-radius: 4px;
+        border: 2px solid #444; /* Creates padding around thumb */
+      }
+      #tweak-modal-scrollable-content::-webkit-scrollbar-thumb:hover {
+        background-color: #aaa; /* Handle color on hover */
+      }
+
+      /* Style adjustments for items within scrollable area if needed */
+      .tweak-settings-section,
     `;
     const styleSheet = document.createElement("style");
     styleSheet.innerText = styles;
@@ -435,6 +464,11 @@
     feedbackElement = document.createElement("p");
     feedbackElement.id = "tweak-modal-feedback";
     feedbackElement.textContent = " ";
+
+    // Create a wrapper for scrollable content
+    const scrollableContent = document.createElement("div");
+    scrollableContent.id = "tweak-modal-scrollable-content";
+
     const settingsSection = document.createElement("div");
     settingsSection.className = "tweak-settings-section";
     const checkboxContainer = document.createElement("div");
@@ -645,6 +679,15 @@
     fontFamilySection.appendChild(fontFamilyLabel);
     fontFamilySection.appendChild(fontFamilyInputWrapper);
 
+    // Append all settings sections to the scrollable wrapper
+    scrollableContent.appendChild(settingsSection);
+    scrollableContent.appendChild(colorPickerSection);
+    scrollableContent.appendChild(wsIconColorPickerSection);
+    scrollableContent.appendChild(wsFontColorPickerSection);
+    scrollableContent.appendChild(customTitleSection);
+    scrollableContent.appendChild(customFontSection);
+    scrollableContent.appendChild(fontFamilySection);
+
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
     const closeButtonBottom = document.createElement("button");
@@ -654,13 +697,7 @@
     footer.appendChild(closeButtonBottom);
     modalElement.appendChild(header);
     modalElement.appendChild(feedbackElement);
-    modalElement.appendChild(settingsSection);
-    modalElement.appendChild(colorPickerSection);
-    modalElement.appendChild(wsIconColorPickerSection);
-    modalElement.appendChild(wsFontColorPickerSection);
-    modalElement.appendChild(customTitleSection);
-    modalElement.appendChild(customFontSection);
-    modalElement.appendChild(fontFamilySection);
+    modalElement.appendChild(scrollableContent); // Add the scrollable wrapper
     modalElement.appendChild(footer);
     modalOverlay.appendChild(modalElement);
     document.body.appendChild(modalOverlay);
