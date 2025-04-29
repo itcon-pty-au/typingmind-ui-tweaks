@@ -636,8 +636,7 @@
     fontSettingsContainer.className = "tweak-settings-section"; // Reuse section style
     // Add descriptive text
     const fontDescription = document.createElement("p");
-    fontDescription.textContent =
-      "Import and apply a custom font (usually requires both URL and Name):";
+    fontDescription.textContent = "Import and apply a custom font: ";
     fontDescription.style.marginBottom = "15px"; // Add some space below description
     fontDescription.style.fontSize = "0.9em";
     fontDescription.style.color = "#ccc"; // Lighter grey for description
