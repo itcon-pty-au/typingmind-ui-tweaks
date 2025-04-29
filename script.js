@@ -1284,6 +1284,41 @@ ${rulesString}
 }
         `);
     }
+    if (
+      cleanedSize &&
+      !isNaN(parseInt(cleanedSize, 10)) &&
+      parseInt(cleanedSize, 10) > 0
+    ) {
+      cssRules.push(`
+[data-element-id="chat-space-middle-part"] {
+  font-size: ${cleanedSize}px !important; /* Set base size on container */
+}
+      `);
+    }
+    let textElementRules = [];
+    if (cleanedFamily && cleanedFamily.trim() !== "") {
+      let fontFamilyValue = cleanedFamily.trim();
+      if (fontFamilyValue.includes(" ")) {
+        fontFamilyValue = `'${fontFamilyValue}'`;
+      }
+      textElementRules.push(`  font-family: ${fontFamilyValue} !important;`);
+    }
+    if (cleanedWeight) {
+      textElementRules.push(`  font-weight: ${cleanedWeight} !important;`);
+    }
+    if (cleanedStyle) {
+      textElementRules.push(`  font-style: ${cleanedStyle} !important;`);
+    }
+    if (textElementRules.length > 0) {
+      const rulesString = textElementRules.join("\n");
+      cssRules.push(`
+[data-element-id="chat-space-middle-part"] .prose,
+[data-element-id="chat-space-middle-part"] .prose-sm,
+[data-element-id="chat-space-middle-part"] .text-sm {
+${rulesString}
+}
+      `);
+    }
 
     const newStyleContent = cssRules.join("\n");
     if (styleElement.textContent !== newStyleContent) {
