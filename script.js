@@ -709,7 +709,7 @@
     fontFamilySection.appendChild(fontFamilyInputWrapper);
     const fontWeightSection = document.createElement("div");
     fontWeightSection.className = "tweak-text-item";
-    const fontWeightLabel = document.createElement("label");>
+    const fontWeightLabel = document.createElement("label");
     fontWeightLabel.htmlFor = "tweak_customFontWeight_select";
     fontWeightLabel.textContent = "Font Weight:";
     fontWeightLabel.style.marginRight = "10px";
