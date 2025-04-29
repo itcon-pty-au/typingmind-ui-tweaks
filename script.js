@@ -423,6 +423,7 @@
           flex-basis: auto; /* Let browser determine initial size */
           padding: 6px 10px;
           border: 1px solid #777;
+          margin-right: 10px;
           border-radius: 4px;
           background-color: #555;
           color: #f0f0f0;
