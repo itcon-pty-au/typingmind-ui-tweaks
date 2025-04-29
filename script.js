@@ -421,7 +421,9 @@
            flex-grow: 1; /* Allow wrapper to take remaining space */
       }
       .tweak-text-item input[type='text'] {
-          flex-grow: 1; /* Allow input to fill space */
+          flex-grow: 1; /* Still try to fill space */
+          flex-shrink: 1; /* Allow shrinking */
+          min-width: 50px; /* Prevent shrinking too much */
           padding: 6px 10px;
           border: 1px solid #777;
           border-radius: 4px;
@@ -717,6 +719,16 @@
     scrollableContent.appendChild(wsIconColorPickerSection);
     scrollableContent.appendChild(wsFontColorPickerSection);
     scrollableContent.appendChild(customTitleSection);
+
+    // --- Add a Divider ---
+    const divider = document.createElement("hr");
+    divider.style.borderColor = "#4a4a4a";
+    divider.style.borderTopWidth = "1px";
+    divider.style.marginTop = "20px";
+    divider.style.marginBottom = "20px";
+    scrollableContent.appendChild(divider);
+    // --- End Divider ---
+
     scrollableContent.appendChild(fontSettingsContainer); // Add the font container
 
     const footer = document.createElement("div");
