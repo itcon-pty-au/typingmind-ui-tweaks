@@ -12,6 +12,7 @@
     workspaceIconColor: "tweak_workspaceIconColor",
     workspaceFontColor: "tweak_workspaceFontColor",
     customPageTitle: "tweak_customPageTitle",
+    showModalButton: "tweak_showModalButton",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -35,6 +36,10 @@
     const newChatColor = getSetting(settingsKeys.newChatButtonColor, null);
     const wsIconColor = getSetting(settingsKeys.workspaceIconColor, null);
     const wsFontColor = getSetting(settingsKeys.workspaceFontColor, null);
+    const showModalButtonSetting = getSetting(
+      settingsKeys.showModalButton,
+      true
+    );
     const teamsButton = document.querySelector(
       'button[data-element-id="workspace-tab-teams"]'
     );
@@ -163,6 +168,98 @@
         }
       });
     } else {
+    }
+    if (workspaceBar) {
+      let tweaksButton = document.getElementById("tweak-modal-open-button");
+      let settingsButton = null;
+      const buttonsInBar = workspaceBar.querySelectorAll("button");
+      buttonsInBar.forEach((button) => {
+        const textSpan = button.querySelector("span > span");
+        if (
+          textSpan &&
+          textSpan.textContent.trim().toLowerCase() === "settings"
+        ) {
+          settingsButton = button;
+        }
+      });
+      const insertReferenceButton =
+        settingsButton ||
+        profileButton ||
+        workspaceBar.querySelector("button:last-of-type");
+      const styleReferenceButton =
+        profileButton ||
+        workspaceBar.querySelector("button[data-element-id]") ||
+        workspaceBar.querySelector("button");
+      if (!tweaksButton) {
+        tweaksButton = document.createElement("button");
+        tweaksButton.id = "tweak-modal-open-button";
+        tweaksButton.title = "Open UI Tweaks";
+        if (styleReferenceButton) {
+          tweaksButton.className = styleReferenceButton.className;
+          tweaksButton.style.cursor = "pointer";
+        } else {
+          tweaksButton.style.padding = "8px";
+          tweaksButton.style.border = "none";
+          tweaksButton.style.background = "transparent";
+          tweaksButton.style.cursor = "pointer";
+        }
+        tweaksButton.style.display = "flex";
+        tweaksButton.style.alignItems = "center";
+        tweaksButton.style.justifyContent = "center";
+        const svgIcon = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
+        svgIcon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svgIcon.setAttribute("viewBox", "0 0 24 24");
+        svgIcon.setAttribute("fill", "currentColor");
+        svgIcon.setAttribute("width", "18");
+        svgIcon.setAttribute("height", "18");
+        const currentWsIconColor = getSetting(
+          settingsKeys.workspaceIconColor,
+          null
+        );
+        svgIcon.style.color =
+          currentWsIconColor || defaultWorkspaceIconColorVisual;
+        const svgPath = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "path"
+        );
+        svgPath.setAttribute(
+          "d",
+          "M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4c-.83 0-1.5-.67-1.5-1.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+        );
+        svgIcon.appendChild(svgPath);
+        tweaksButton.appendChild(svgIcon);
+
+        tweaksButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleModal(true);
+        });
+        if (insertReferenceButton) {
+          workspaceBar.insertBefore(tweaksButton, insertReferenceButton);
+        } else {
+          workspaceBar.appendChild(tweaksButton);
+        }
+      } else {
+        const svgIcon = tweaksButton.querySelector("svg");
+        if (svgIcon) {
+          const currentWsIconColor = getSetting(
+            settingsKeys.workspaceIconColor,
+            null
+          );
+          const newColor =
+            currentWsIconColor || defaultWorkspaceIconColorVisual;
+          if (svgIcon.style.color !== newColor) {
+            svgIcon.style.color = newColor;
+          }
+        }
+      }
+      const newDisplay = showModalButtonSetting ? "" : "none";
+      if (tweaksButton.style.display !== newDisplay) {
+        tweaksButton.style.display = newDisplay;
+      }
     }
   }
   function applyCustomTitle() {
@@ -414,6 +511,11 @@
         key: settingsKeys.hidePinnedChars,
         label: "Hide 'Characters' in New Chat",
       },
+      {
+        key: settingsKeys.showModalButton,
+        label: "Show 'Tweaks' Button in Menu",
+        defaultValue: true,
+      },
     ];
     settings.forEach((setting) => {
       const itemDiv = document.createElement("div");
@@ -422,6 +524,7 @@
       checkbox.type = "checkbox";
       checkbox.id = setting.key;
       checkbox.name = setting.key;
+      checkbox.checked = getSetting(setting.key, setting.defaultValue === true);
       checkbox.addEventListener("change", (event) =>
         saveSetting(setting.key, event.target.checked)
       );
@@ -561,19 +664,28 @@
   }
   function loadSettingsIntoModal() {
     if (!modalElement) return;
-    Object.values(settingsKeys).forEach((storageKey) => {
+    const settingsMetadata = [
+      { key: settingsKeys.hideTeams, defaultValue: false },
+      { key: settingsKeys.hideKB, defaultValue: false },
+      { key: settingsKeys.hideLogo, defaultValue: false },
+      { key: settingsKeys.hideProfile, defaultValue: false },
+      { key: settingsKeys.hideChatProfiles, defaultValue: false },
+      { key: settingsKeys.hidePinnedChars, defaultValue: false },
+      { key: settingsKeys.showModalButton, defaultValue: true },
+    ];
+    settingsMetadata.forEach(({ key, defaultValue }) => {
       if (
-        storageKey !== settingsKeys.newChatButtonColor &&
-        storageKey !== settingsKeys.workspaceIconColor &&
-        storageKey !== settingsKeys.workspaceFontColor &&
-        storageKey !== settingsKeys.customPageTitle
+        key !== settingsKeys.newChatButtonColor &&
+        key !== settingsKeys.workspaceIconColor &&
+        key !== settingsKeys.workspaceFontColor &&
+        key !== settingsKeys.customPageTitle
       ) {
-        const checkbox = document.getElementById(storageKey);
+        const checkbox = document.getElementById(key);
         if (checkbox) {
-          checkbox.checked = getSetting(storageKey);
+          checkbox.checked = getSetting(key, defaultValue);
         } else {
           console.warn(
-            `${consolePrefix} Checkbox element not found for ID: ${storageKey}`
+            `${consolePrefix} Checkbox element not found for ID: ${key}`
           );
         }
       }
