@@ -171,29 +171,14 @@
     }
     if (workspaceBar) {
       let tweaksButton = document.getElementById("tweak-modal-open-button");
-      let settingsButton = null;
-      const buttonsInBar = workspaceBar.querySelectorAll("button");
-      buttonsInBar.forEach((button) => {
-        const textSpan = button.querySelector("span > span");
-        if (
-          textSpan &&
-          textSpan.textContent.trim().toLowerCase() === "settings"
-        ) {
-          settingsButton = button;
-        }
-      });
-      const insertReferenceButton =
-        settingsButton ||
-        profileButton ||
-        workspaceBar.querySelector("button:last-of-type");
-      const styleReferenceButton =
-        profileButton ||
-        workspaceBar.querySelector("button[data-element-id]") ||
-        workspaceBar.querySelector("button");
+      const styleReferenceButton = profileButton;
+      const insertReferenceButton = profileButton;
+
       if (!tweaksButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "tweak-modal-open-button";
         tweaksButton.title = "Open UI Tweaks";
+
         if (styleReferenceButton) {
           tweaksButton.className = styleReferenceButton.className;
           tweaksButton.style.cursor = "pointer";
@@ -203,9 +188,11 @@
           tweaksButton.style.background = "transparent";
           tweaksButton.style.cursor = "pointer";
         }
+
         tweaksButton.style.display = "flex";
         tweaksButton.style.alignItems = "center";
         tweaksButton.style.justifyContent = "center";
+
         const svgIcon = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
@@ -221,6 +208,7 @@
         );
         svgIcon.style.color =
           currentWsIconColor || defaultWorkspaceIconColorVisual;
+
         const svgPath = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "path"
@@ -237,7 +225,11 @@
           e.stopPropagation();
           toggleModal(true);
         });
-        if (insertReferenceButton) {
+
+        if (
+          insertReferenceButton &&
+          insertReferenceButton.parentNode === workspaceBar
+        ) {
           workspaceBar.insertBefore(tweaksButton, insertReferenceButton);
         } else {
           workspaceBar.appendChild(tweaksButton);
@@ -256,7 +248,8 @@
           }
         }
       }
-      const newDisplay = showModalButtonSetting ? "" : "none";
+
+      const newDisplay = showModalButtonSetting ? "flex" : "none";
       if (tweaksButton.style.display !== newDisplay) {
         tweaksButton.style.display = newDisplay;
       }
