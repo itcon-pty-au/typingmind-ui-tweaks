@@ -1027,7 +1027,12 @@
   }
   function saveSetting(key, value) {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      if (value === null) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
       if (feedbackElement) {
         feedbackElement.textContent = "Settings saved.";
       }
