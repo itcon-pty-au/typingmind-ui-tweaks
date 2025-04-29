@@ -444,7 +444,14 @@
           color: #f0f0f0;
           font-size: 0.9em;
       }
-       /* Reuse tweak-reset-button style for clear button */
+       /* NEW: Placeholder text color */
+       .tweak-text-item input[type='text']::placeholder,
+       .tweak-text-item input[type='number']::placeholder {
+         color: #f0f0f0; /* Match dropdown text color */
+         opacity: 0.7; /* Make placeholder slightly less prominent */
+       }
+
+      /* Reuse tweak-reset-button style for clear button */
 
       /* NEW: Scrollable Content Area */
       #tweak-modal-scrollable-content {
@@ -836,7 +843,7 @@
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
     const clearFontSizeButton = document.createElement("button");
-    clearFontSizeButton.textContent = "Reset";
+    clearFontSizeButton.textContent = "Clear";
     clearFontSizeButton.className = "tweak-reset-button";
     clearFontSizeButton.type = "button";
     clearFontSizeButton.addEventListener("click", () => {
