@@ -170,7 +170,7 @@
     } else {
     }
     if (workspaceBar) {
-      let tweaksButton = document.getElementById("tweak-modal-open-button");
+      let tweaksButton = document.getElementById("workspace-tab-tweaks");
       const settingsButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-settings"]'
       );
@@ -182,7 +182,7 @@
 
       if (!tweaksButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
-        tweaksButton.id = "tweak-modal-open-button";
+        tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
 
@@ -291,7 +291,7 @@
       }
 
       const currentTweaksButton = document.getElementById(
-        "tweak-modal-open-button"
+        "workspace-tab-tweaks"
       );
       const currentSettingsButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-settings"]'
