@@ -171,43 +171,71 @@
     }
     if (workspaceBar) {
       let tweaksButton = document.getElementById("tweak-modal-open-button");
-      const styleReferenceButton = profileButton;
-      const insertReferenceButton = profileButton;
+      const settingsButton = workspaceBar.querySelector(
+        'button[data-element-id="workspace-tab-settings"]'
+      );
+      const syncButton = workspaceBar.querySelector(
+        'button[data-element-id="workspace-tab-cloudsync"]'
+      );
+      const insertReferenceButton = settingsButton;
+      const styleReferenceButton = syncButton || profileButton;
 
-      if (!tweaksButton) {
+      if (!tweaksButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "tweak-modal-open-button";
         tweaksButton.title = "Open UI Tweaks";
+        tweaksButton.dataset.elementId = "workspace-tab-tweaks";
 
-        if (styleReferenceButton) {
-          tweaksButton.className = styleReferenceButton.className;
-          tweaksButton.style.cursor = "pointer";
-        } else {
-          tweaksButton.style.padding = "8px";
-          tweaksButton.style.border = "none";
-          tweaksButton.style.background = "transparent";
-          tweaksButton.style.cursor = "pointer";
+        tweaksButton.className = styleReferenceButton.className;
+
+        const outerSpan = document.createElement("span");
+        const styleReferenceOuterSpan =
+          styleReferenceButton.querySelector(":scope > span");
+        if (styleReferenceOuterSpan) {
+          outerSpan.className = styleReferenceOuterSpan.className;
         }
 
-        tweaksButton.style.display = "flex";
-        tweaksButton.style.alignItems = "center";
-        tweaksButton.style.justifyContent = "center";
+        const iconDiv = document.createElement("div");
+        const styleReferenceIconDiv = styleReferenceButton.querySelector(
+          ":scope > span > div"
+        );
+        if (styleReferenceIconDiv) {
+          iconDiv.className = styleReferenceIconDiv.className;
+        }
+        iconDiv.style.position = "relative";
 
         const svgIcon = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
         );
+        const styleReferenceSvg = styleReferenceButton.querySelector("svg");
+        if (styleReferenceSvg) {
+          svgIcon.setAttribute(
+            "class",
+            styleReferenceSvg.getAttribute("class") || "w-5 h-5"
+          );
+          svgIcon.setAttribute(
+            "width",
+            styleReferenceSvg.getAttribute("width") || "18"
+          );
+          svgIcon.setAttribute(
+            "height",
+            styleReferenceSvg.getAttribute("height") || "18"
+          );
+        } else {
+          svgIcon.setAttribute("class", "w-5 h-5");
+          svgIcon.setAttribute("width", "18");
+          svgIcon.setAttribute("height", "18");
+        }
         svgIcon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
         svgIcon.setAttribute("viewBox", "0 0 24 24");
-        svgIcon.setAttribute("fill", "currentColor");
-        svgIcon.setAttribute("width", "18");
-        svgIcon.setAttribute("height", "18");
         const currentWsIconColor = getSetting(
           settingsKeys.workspaceIconColor,
           null
         );
         svgIcon.style.color =
           currentWsIconColor || defaultWorkspaceIconColorVisual;
+        svgIcon.setAttribute("fill", "currentColor");
 
         const svgPath = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -218,7 +246,20 @@
           "M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4c-.83 0-1.5-.67-1.5-1.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
         );
         svgIcon.appendChild(svgPath);
-        tweaksButton.appendChild(svgIcon);
+        iconDiv.appendChild(svgIcon);
+
+        const textSpan = document.createElement("span");
+        const styleReferenceTextSpan = styleReferenceButton.querySelector(
+          ":scope > span > span"
+        );
+        if (styleReferenceTextSpan) {
+          textSpan.className = styleReferenceTextSpan.className;
+        }
+        textSpan.textContent = "Tweaks";
+
+        outerSpan.appendChild(iconDiv);
+        outerSpan.appendChild(textSpan);
+        tweaksButton.appendChild(outerSpan);
 
         tweaksButton.addEventListener("click", (e) => {
           e.preventDefault();
@@ -234,7 +275,7 @@
         } else {
           workspaceBar.appendChild(tweaksButton);
         }
-      } else {
+      } else if (tweaksButton) {
         const svgIcon = tweaksButton.querySelector("svg");
         if (svgIcon) {
           const currentWsIconColor = getSetting(
@@ -249,9 +290,11 @@
         }
       }
 
-      const newDisplay = showModalButtonSetting ? "flex" : "none";
-      if (tweaksButton.style.display !== newDisplay) {
-        tweaksButton.style.display = newDisplay;
+      if (tweaksButton) {
+        const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
+        if (tweaksButton.style.display !== newDisplay) {
+          tweaksButton.style.display = newDisplay;
+        }
       }
     }
   }
