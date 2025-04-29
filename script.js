@@ -405,10 +405,8 @@
           margin-top: 20px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
       }
       .tweak-text-item label {
-          margin-right: 10px;
           color: #e0e0e0;
           font-size: 1em;
           white-space: nowrap; /* Prevent label wrapping */
@@ -429,7 +427,6 @@
           background-color: #555;
           color: #f0f0f0;
           font-size: 0.9em;
-          margin-right: 10px;
       }
        /* Reuse tweak-reset-button style for clear button */
 
@@ -610,7 +607,7 @@
     const titleInput = document.createElement("input");
     titleInput.type = "text";
     titleInput.id = "tweak_customPageTitle_input";
-    titleInput.placeholder = "";
+    titleInput.placeholder = "Custom Page Title";
     titleInput.addEventListener("input", (event) => {
       localStorage.setItem(
         settingsKeys.customPageTitle,
@@ -631,7 +628,6 @@
     });
     titleInputWrapper.appendChild(titleInput);
     titleInputWrapper.appendChild(clearTitleButton);
-    customTitleSection.appendChild(titleLabel);
     customTitleSection.appendChild(titleInputWrapper);
 
     // --- Container for Font Settings ---
@@ -657,7 +653,7 @@
     const fontInput = document.createElement("input");
     fontInput.type = "text";
     fontInput.id = "tweak_customFontUrl_input";
-    fontInput.placeholder = "e.g., Google Fonts URL";
+    fontInput.placeholder = "Font URL (e.g., Google Fonts)";
     fontInput.addEventListener("input", (event) => {
       saveSetting(settingsKeys.customFontUrl, event.target.value || null); // Save null if empty
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
@@ -673,7 +669,6 @@
     });
     fontInputWrapper.appendChild(fontInput);
     fontInputWrapper.appendChild(clearFontButton);
-    customFontSection.appendChild(fontLabel);
     customFontSection.appendChild(fontInputWrapper);
 
     // Font Family Input Section (Create but don't append yet)
@@ -687,7 +682,7 @@
     const fontFamilyInput = document.createElement("input");
     fontFamilyInput.type = "text";
     fontFamilyInput.id = "tweak_customFontFamily_input";
-    fontFamilyInput.placeholder = "e.g., 'Roboto', 'Open Sans'"; // Added quotes for clarity
+    fontFamilyInput.placeholder = "Font Family Name (e.g., 'Roboto')";
     fontFamilyInput.addEventListener("input", (event) => {
       // Save the exact string, handle potential quotes by user later if needed
       saveSetting(settingsKeys.customFontFamily, event.target.value || null);
@@ -704,7 +699,6 @@
     });
     fontFamilyInputWrapper.appendChild(fontFamilyInput);
     fontFamilyInputWrapper.appendChild(clearFontFamilyButton);
-    fontFamilySection.appendChild(fontFamilyLabel);
     fontFamilySection.appendChild(fontFamilyInputWrapper);
 
     // Append font sections to their container
