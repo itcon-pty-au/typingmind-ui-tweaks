@@ -290,6 +290,23 @@
         }
       }
 
+      const currentTweaksButton = document.getElementById(
+        "tweak-modal-open-button"
+      );
+      const currentSettingsButton = workspaceBar.querySelector(
+        'button[data-element-id="workspace-tab-settings"]'
+      );
+      if (
+        currentTweaksButton &&
+        currentSettingsButton &&
+        currentSettingsButton.parentNode === workspaceBar
+      ) {
+        if (
+          currentSettingsButton.previousElementSibling !== currentTweaksButton
+        ) {
+          workspaceBar.insertBefore(currentTweaksButton, currentSettingsButton);
+        }
+      }
       if (tweaksButton) {
         const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
         if (tweaksButton.style.display !== newDisplay) {
