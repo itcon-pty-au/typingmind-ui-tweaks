@@ -1282,7 +1282,7 @@
     // Add the combined rules for chat space if any exist
     if (chatSpaceRules.length > 0) {
       cssRules.push(`
-[data-element-id="chat-space-background"] {
+[data-element-id="chat-space-middle-part"] {
 ${chatSpaceRules.join("\n")}
 }
         `);
