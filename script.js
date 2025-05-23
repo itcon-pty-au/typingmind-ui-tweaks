@@ -16,6 +16,7 @@
     customFontUrl: "tweak_customFontUrl",
     customFontFamily: "tweak_customFontFamily",
     customFontSize: "tweak_customFontSize",
+    customFaviconData: "tweak_customFaviconData",
   };
 
   const consolePrefix = "TypingMind Tweaks:";
@@ -762,6 +763,44 @@
     divider.style.marginBottom = "20px";
     scrollableContent.appendChild(divider);
     scrollableContent.appendChild(fontSettingsContainer);
+    const faviconSection = document.createElement("div");
+    faviconSection.className = "tweak-settings-section";
+    const faviconLabel = document.createElement("label");
+    faviconLabel.textContent = "Custom Favicon:";
+    faviconLabel.style.color = "#e0e0e0";
+    faviconLabel.style.fontSize = "1em";
+    faviconLabel.style.marginRight = "10px";
+    const faviconInputWrapper = document.createElement("div");
+    faviconInputWrapper.className = "tweak-text-input-wrapper";
+    const faviconInput = document.createElement("input");
+    faviconInput.type = "file";
+    faviconInput.accept = ".ico,.png,.jpg,.jpeg,.svg";
+    faviconInput.style.flexGrow = "1";
+    faviconInput.style.marginRight = "10px";
+    faviconInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        saveSetting(settingsKeys.customFaviconData, e.target.result);
+        if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+      };
+      reader.readAsDataURL(file);
+    });
+    const clearFaviconButton = document.createElement("button");
+    clearFaviconButton.textContent = "Clear";
+    clearFaviconButton.className = "tweak-reset-button";
+    clearFaviconButton.type = "button";
+    clearFaviconButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.customFaviconData, null);
+      faviconInput.value = "";
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    faviconInputWrapper.appendChild(faviconInput);
+    faviconInputWrapper.appendChild(clearFaviconButton);
+    faviconSection.appendChild(faviconLabel);
+    faviconSection.appendChild(faviconInputWrapper);
+    scrollableContent.appendChild(faviconSection);
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
     const closeButtonBottom = document.createElement("button");
@@ -878,6 +917,14 @@
       }
       fontSizeInput.value = sizeToSet;
     }
+    const faviconInput = document.getElementById(
+      "tweak_customFaviconData_input"
+    );
+    if (faviconInput) {
+      const storedFaviconData =
+        localStorage.getItem(settingsKeys.customFaviconData) || "";
+      faviconInput.value = storedFaviconData;
+    }
     if (feedbackElement) feedbackElement.textContent = " ";
   }
   function saveSetting(key, value) {
@@ -898,6 +945,9 @@
         key === settingsKeys.customFontSize
       ) {
         applyCustomFont();
+      }
+      if (key === settingsKeys.customFaviconData) {
+        applyCustomFavicon();
       }
     } catch (error) {
       console.error(`${consolePrefix} Error saving setting ${key}:`, error);
@@ -943,12 +993,14 @@
     applyStylesBasedOnSettings();
     applyCustomTitle();
     applyCustomFont();
+    applyCustomFavicon();
   }
   createSettingsModal();
   const observer = new MutationObserver((mutationsList) => {
     applyStylesBasedOnSettings();
     applyCustomTitle();
     applyCustomFont();
+    applyCustomFavicon();
     const workspaceBar = document.querySelector(
       'div[data-element-id="workspace-bar"]'
     );
@@ -1160,6 +1212,22 @@ ${rulesString}
     const newStyleContent = cssRules.join("\n");
     if (styleElement.textContent !== newStyleContent) {
       styleElement.textContent = newStyleContent;
+    }
+  }
+
+  function applyCustomFavicon() {
+    const faviconData = localStorage.getItem(settingsKeys.customFaviconData);
+    let favicon = document.querySelector('link[rel="icon"]');
+    if (!favicon) {
+      favicon = document.createElement("link");
+      favicon.rel = "icon";
+      document.head.appendChild(favicon);
+    }
+    if (faviconData && faviconData !== "null") {
+      favicon.href = faviconData;
+    } else {
+      const defaultFavicon = "/favicon.ico";
+      favicon.href = defaultFavicon;
     }
   }
 })();
