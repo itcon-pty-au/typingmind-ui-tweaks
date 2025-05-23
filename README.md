@@ -11,7 +11,8 @@
 8. Set Menu icon color
 9. Set Menu font color
 10. Customize site title
-11. Custom font in chat area
+11. Custom font
+12. Custom favicon
 
 ## Using the extension
 1. Load "[https://itcon-pty-au.github.io/typingmind-ui-tweaks/script.js](https://itcon-pty-au.github.io/typingmind-ui-tweaks/script.js)" into Menu > Preferences > Extension in Typingmind.
