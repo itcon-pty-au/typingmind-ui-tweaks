@@ -937,8 +937,9 @@
       faviconInput.parentNode &&
       faviconInput.parentNode.querySelector("img");
     if (faviconPreview) {
-      const storedFaviconData = localStorage.getItem(
-        settingsKeys.customFaviconData
+      const storedFaviconData = getSetting(
+        settingsKeys.customFaviconData,
+        null
       );
       if (storedFaviconData && storedFaviconData !== "null") {
         faviconPreview.src = storedFaviconData;
@@ -1239,7 +1240,7 @@ ${rulesString}
   }
 
   function applyCustomFavicon() {
-    const faviconData = localStorage.getItem(settingsKeys.customFaviconData);
+    const faviconData = getSetting(settingsKeys.customFaviconData, null);
     let favicon = document.querySelector('link[rel="icon"]');
     if (!favicon) {
       favicon = document.createElement("link");
