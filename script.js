@@ -778,12 +778,20 @@
     faviconInput.id = "tweak_customFaviconData_input";
     faviconInput.style.flexGrow = "1";
     faviconInput.style.marginRight = "10px";
+    const faviconPreview = document.createElement("img");
+    faviconPreview.style.width = "24px";
+    faviconPreview.style.height = "24px";
+    faviconPreview.style.marginLeft = "10px";
+    faviconPreview.style.verticalAlign = "middle";
+    faviconPreview.style.display = "none";
     faviconInput.addEventListener("change", (event) => {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function (e) {
         saveSetting(settingsKeys.customFaviconData, e.target.result);
+        faviconPreview.src = e.target.result;
+        faviconPreview.style.display = "inline-block";
         if (feedbackElement) feedbackElement.textContent = "Settings saved.";
       };
       reader.readAsDataURL(file);
@@ -795,10 +803,13 @@
     clearFaviconButton.addEventListener("click", () => {
       saveSetting(settingsKeys.customFaviconData, null);
       faviconInput.value = "";
+      faviconPreview.src = "";
+      faviconPreview.style.display = "none";
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
     faviconInputWrapper.appendChild(faviconInput);
     faviconInputWrapper.appendChild(clearFaviconButton);
+    faviconInputWrapper.appendChild(faviconPreview);
     faviconSection.appendChild(faviconLabel);
     faviconSection.appendChild(faviconInputWrapper);
     scrollableContent.appendChild(faviconSection);
@@ -921,10 +932,21 @@
     const faviconInput = document.getElementById(
       "tweak_customFaviconData_input"
     );
-    if (faviconInput) {
-      const storedFaviconData =
-        localStorage.getItem(settingsKeys.customFaviconData) || "";
-      faviconInput.value = storedFaviconData;
+    const faviconPreview =
+      faviconInput &&
+      faviconInput.parentNode &&
+      faviconInput.parentNode.querySelector("img");
+    if (faviconPreview) {
+      const storedFaviconData = localStorage.getItem(
+        settingsKeys.customFaviconData
+      );
+      if (storedFaviconData && storedFaviconData !== "null") {
+        faviconPreview.src = storedFaviconData;
+        faviconPreview.style.display = "inline-block";
+      } else {
+        faviconPreview.src = "";
+        faviconPreview.style.display = "none";
+      }
     }
     if (feedbackElement) feedbackElement.textContent = " ";
   }
