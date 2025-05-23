@@ -792,6 +792,8 @@
         saveSetting(settingsKeys.customFaviconData, e.target.result);
         faviconPreview.src = e.target.result;
         faviconPreview.style.display = "inline-block";
+        faviconInput.style.display = "none";
+        clearFaviconButton.style.display = "inline-block";
         if (feedbackElement) feedbackElement.textContent = "Settings saved.";
       };
       reader.readAsDataURL(file);
@@ -800,11 +802,14 @@
     clearFaviconButton.textContent = "Clear";
     clearFaviconButton.className = "tweak-reset-button";
     clearFaviconButton.type = "button";
+    clearFaviconButton.style.display = "none";
     clearFaviconButton.addEventListener("click", () => {
       saveSetting(settingsKeys.customFaviconData, null);
       faviconInput.value = "";
       faviconPreview.src = "";
       faviconPreview.style.display = "none";
+      faviconInput.style.display = "inline-block";
+      clearFaviconButton.style.display = "none";
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
     faviconInputWrapper.appendChild(faviconInput);
@@ -944,9 +949,13 @@
       if (storedFaviconData && storedFaviconData !== "null") {
         faviconPreview.src = storedFaviconData;
         faviconPreview.style.display = "inline-block";
+        faviconInput.style.display = "none";
+        clearFaviconButton.style.display = "inline-block";
       } else {
         faviconPreview.src = "";
         faviconPreview.style.display = "none";
+        faviconInput.style.display = "inline-block";
+        clearFaviconButton.style.display = "none";
       }
     }
     if (feedbackElement) feedbackElement.textContent = " ";
