@@ -1134,8 +1134,88 @@
     document.readyState === "interactive"
   ) {
     initializeTweaks();
+    setTimeout(() => applyCustomFavicon(), 0);
+    const faviconObserver = new MutationObserver((mutationsList) => {
+      let faviconChanged = false;
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList" || mutation.type === "attributes") {
+          mutation.addedNodes &&
+            mutation.addedNodes.forEach((node) => {
+              if (
+                node.nodeType === 1 &&
+                node.tagName === "LINK" &&
+                node.rel === "icon"
+              )
+                faviconChanged = true;
+            });
+          mutation.removedNodes &&
+            mutation.removedNodes.forEach((node) => {
+              if (
+                node.nodeType === 1 &&
+                node.tagName === "LINK" &&
+                node.rel === "icon"
+              )
+                faviconChanged = true;
+            });
+          if (
+            mutation.target &&
+            mutation.target.tagName === "LINK" &&
+            mutation.target.rel === "icon"
+          )
+            faviconChanged = true;
+        }
+      }
+      if (faviconChanged) setTimeout(() => applyCustomFavicon(), 0);
+    });
+    faviconObserver.observe(document.head, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["href", "rel"],
+    });
   } else {
     document.addEventListener("DOMContentLoaded", initializeTweaks);
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => applyCustomFavicon(), 0);
+      const faviconObserver = new MutationObserver((mutationsList) => {
+        let faviconChanged = false;
+        for (const mutation of mutationsList) {
+          if (mutation.type === "childList" || mutation.type === "attributes") {
+            mutation.addedNodes &&
+              mutation.addedNodes.forEach((node) => {
+                if (
+                  node.nodeType === 1 &&
+                  node.tagName === "LINK" &&
+                  node.rel === "icon"
+                )
+                  faviconChanged = true;
+              });
+            mutation.removedNodes &&
+              mutation.removedNodes.forEach((node) => {
+                if (
+                  node.nodeType === 1 &&
+                  node.tagName === "LINK" &&
+                  node.rel === "icon"
+                )
+                  faviconChanged = true;
+              });
+            if (
+              mutation.target &&
+              mutation.target.tagName === "LINK" &&
+              mutation.target.rel === "icon"
+            )
+              faviconChanged = true;
+          }
+        }
+        if (faviconChanged) setTimeout(() => applyCustomFavicon(), 0);
+      });
+      faviconObserver.observe(document.head, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["href", "rel"],
+      });
+    });
   }
   console.log(
     `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings.`
