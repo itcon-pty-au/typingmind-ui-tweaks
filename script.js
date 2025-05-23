@@ -1334,17 +1334,15 @@ ${rulesString}
 
   function applyCustomFavicon() {
     const faviconData = getSetting(settingsKeys.customFaviconData, null);
-    let favicon = document.querySelector('link[rel="icon"]');
-    if (!favicon) {
-      favicon = document.createElement("link");
-      favicon.rel = "icon";
-      document.head.appendChild(favicon);
-    }
+    const links = document.querySelectorAll('link[rel="icon"]');
+    links.forEach((link) => link.parentNode.removeChild(link));
+    const favicon = document.createElement("link");
+    favicon.rel = "icon";
     if (faviconData && faviconData !== "null") {
       favicon.href = faviconData;
     } else {
-      const defaultFavicon = "/favicon.ico";
-      favicon.href = defaultFavicon;
+      favicon.href = "/favicon.ico";
     }
+    document.head.appendChild(favicon);
   }
 })();
