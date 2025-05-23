@@ -1241,91 +1241,45 @@
     const styleId = "tweak-custom-font-style";
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
-
     if (!styleElement) {
       styleElement = document.createElement("style");
       styleElement.id = styleId;
       document.head.appendChild(styleElement);
     }
-
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
     const cleanedSize = cleanValue(customFontSize);
-
     if (cleanedUrl) {
       if (
         cleanedUrl.startsWith("http://") ||
         cleanedUrl.startsWith("https://")
       ) {
         cssRules.push(`@import url('${cleanedUrl}');`);
-      } else {
-        console.warn(
-          `${consolePrefix} Invalid custom font URL provided: ${cleanedUrl}`
-        );
       }
     }
-    let chatSpaceRules = [];
+    let globalRules = [];
     if (cleanedFamily && cleanedFamily.trim() !== "") {
       let fontFamilyValue = cleanedFamily.trim();
       if (fontFamilyValue.includes(" ")) {
         fontFamilyValue = `'${fontFamilyValue}'`;
       }
-      chatSpaceRules.push(`  font-family: ${fontFamilyValue} !important;`);
+      globalRules.push(`  font-family: ${fontFamilyValue} !important;`);
     }
     if (
       cleanedSize &&
       !isNaN(parseInt(cleanedSize, 10)) &&
       parseInt(cleanedSize, 10) > 0
     ) {
-      chatSpaceRules.push(`  font-size: ${cleanedSize}px !important;`);
+      globalRules.push(`  font-size: ${cleanedSize}px !important;`);
     }
-    if (chatSpaceRules.length > 0) {
-      const rulesString = chatSpaceRules.join("\n");
+    if (globalRules.length > 0) {
+      const rulesString = globalRules.join("\n");
       cssRules.push(`
-[data-element-id="chat-space-middle-part"] .prose,
-[data-element-id="chat-space-middle-part"] .prose-sm,
-[data-element-id="chat-space-middle-part"] .text-sm {
-${rulesString}
-}
-        `);
-    }
-    if (
-      cleanedSize &&
-      !isNaN(parseInt(cleanedSize, 10)) &&
-      parseInt(cleanedSize, 10) > 0
-    ) {
-      cssRules.push(`
-[data-element-id="chat-space-middle-part"] {
-  font-size: ${cleanedSize}px !important; /* Set base size on container */
-}
-      `);
-    }
-    let textElementRules = [];
-    if (cleanedFamily && cleanedFamily.trim() !== "") {
-      let fontFamilyValue = cleanedFamily.trim();
-      if (fontFamilyValue.includes(" ")) {
-        fontFamilyValue = `'${fontFamilyValue}'`;
-      }
-      textElementRules.push(`  font-family: ${fontFamilyValue} !important;`);
-    }
-    if (
-      cleanedSize &&
-      !isNaN(parseInt(cleanedSize, 10)) &&
-      parseInt(cleanedSize, 10) > 0
-    ) {
-      textElementRules.push(`  font-size: ${cleanedSize}px !important;`);
-    }
-    if (textElementRules.length > 0) {
-      const rulesString = textElementRules.join("\n");
-      cssRules.push(`
-[data-element-id="chat-space-middle-part"] .prose,
-[data-element-id="chat-space-middle-part"] .prose-sm,
-[data-element-id="chat-space-middle-part"] .text-sm {
+html, body, * {
 ${rulesString}
 }
       `);
     }
-
     const newStyleContent = cssRules.join("\n");
     if (styleElement.textContent !== newStyleContent) {
       styleElement.textContent = newStyleContent;
