@@ -775,6 +775,7 @@
     const faviconInput = document.createElement("input");
     faviconInput.type = "file";
     faviconInput.accept = ".ico,.png,.jpg,.jpeg,.svg";
+    faviconInput.id = "tweak_customFaviconData_input";
     faviconInput.style.flexGrow = "1";
     faviconInput.style.marginRight = "10px";
     faviconInput.addEventListener("change", (event) => {
