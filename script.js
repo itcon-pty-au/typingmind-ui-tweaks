@@ -941,7 +941,11 @@
       faviconInput &&
       faviconInput.parentNode &&
       faviconInput.parentNode.querySelector("img");
-    if (faviconPreview) {
+    const clearFaviconButton =
+      faviconInput &&
+      faviconInput.parentNode &&
+      faviconInput.parentNode.querySelector("button.tweak-reset-button");
+    if (faviconPreview && clearFaviconButton) {
       const storedFaviconData = getSetting(
         settingsKeys.customFaviconData,
         null
