@@ -1142,13 +1142,15 @@
     subtree: true,
   });
 
+  let faviconObserver = null;
+
   if (
     document.readyState === "complete" ||
     document.readyState === "interactive"
   ) {
     initializeTweaks();
     setTimeout(() => applyCustomFavicon(), 0);
-    const faviconObserver = new MutationObserver((mutationsList) => {
+    faviconObserver = new MutationObserver((mutationsList) => {
       let faviconChanged = false;
       for (const mutation of mutationsList) {
         if (mutation.type === "childList" || mutation.type === "attributes") {
@@ -1190,7 +1192,7 @@
     document.addEventListener("DOMContentLoaded", initializeTweaks);
     window.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => applyCustomFavicon(), 0);
-      const faviconObserver = new MutationObserver((mutationsList) => {
+      faviconObserver = new MutationObserver((mutationsList) => {
         let faviconChanged = false;
         for (const mutation of mutationsList) {
           if (mutation.type === "childList" || mutation.type === "attributes") {
@@ -1287,6 +1289,7 @@ ${rulesString}
   }
 
   function applyCustomFavicon() {
+    if (faviconObserver) faviconObserver.disconnect();
     const faviconData = getSetting(settingsKeys.customFaviconData, null);
     const links = document.querySelectorAll('link[rel="icon"]');
     links.forEach((link) => link.parentNode.removeChild(link));
@@ -1298,5 +1301,12 @@ ${rulesString}
       favicon.href = "/favicon.ico";
     }
     document.head.appendChild(favicon);
+    if (faviconObserver)
+      faviconObserver.observe(document.head, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["href", "rel"],
+      });
   }
 })();
