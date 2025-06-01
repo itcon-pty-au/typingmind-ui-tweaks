@@ -225,6 +225,16 @@
         }
       }
     }
+    let sidebarStyle = document.getElementById(
+      "tweak-sidebar-menu-color-style"
+    );
+    if (!sidebarStyle) {
+      sidebarStyle = document.createElement("style");
+      sidebarStyle.id = "tweak-sidebar-menu-color-style";
+      document.head.appendChild(sidebarStyle);
+    }
+    sidebarStyle.textContent =
+      'div[data-element-id="workspace-bar"] {background: var(--sidebar-menu-color, #18181b) !important;}';
   }
   function applyCustomTitle() {
     const customTitle = localStorage.getItem(settingsKeys.customPageTitle);
