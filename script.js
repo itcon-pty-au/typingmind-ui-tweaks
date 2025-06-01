@@ -1309,4 +1309,161 @@ ${rulesString}
         attributeFilter: ["href", "rel"],
       });
   }
+
+  const popupObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      mutation.addedNodes &&
+        mutation.addedNodes.forEach(function (node) {
+          if (
+            node.nodeType === 1 &&
+            node.matches &&
+            node.matches('div[data-element-id="pop-up-modal"]')
+          ) {
+            let popup = node;
+            if (popup.querySelector("#tweak-hex-input")) return;
+            let hexInput = document.createElement("input");
+            hexInput.type = "text";
+            hexInput.id = "tweak-hex-input";
+            hexInput.style.width = "110px";
+            hexInput.style.margin = "16px auto 0 auto";
+            hexInput.style.display = "block";
+            hexInput.style.fontSize = "1.1em";
+            hexInput.style.textAlign = "center";
+            hexInput.maxLength = 7;
+            hexInput.autocomplete = "off";
+            hexInput.spellcheck = false;
+            let getSidebarColor = () => {
+              let c = getComputedStyle(document.body)
+                .getPropertyValue("--sidebar-menu-color")
+                .trim();
+              if (c.startsWith("hsl")) {
+                let m = c.match(/hsl\(([^)]+)\)/);
+                if (m) {
+                  let parts = m[1]
+                    .replace(/%/g, "")
+                    .split(/\s|,|\//)
+                    .map((x) => x.trim())
+                    .filter(Boolean);
+                  let h = parseFloat(parts[0]);
+                  let s = parseFloat(parts[1]) / 100;
+                  let l = parseFloat(parts[2]) / 100;
+                  let a = parts[3] ? parseFloat(parts[3]) : 1;
+                  let rgb = hslToRgb(h, s, l);
+                  return rgbToHex(rgb[0], rgb[1], rgb[2]);
+                }
+              } else if (c.startsWith("#")) {
+                return c;
+              }
+              return "";
+            };
+            let hslToRgb = function (h, s, l) {
+              let r, g, b;
+              if (s == 0) {
+                r = g = b = l;
+              } else {
+                let hue2rgb = function (p, q, t) {
+                  if (t < 0) t += 1;
+                  if (t > 1) t -= 1;
+                  if (t < 1 / 6) return p + (q - p) * 6 * t;
+                  if (t < 1 / 2) return q;
+                  if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                  return p;
+                };
+                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                let p = 2 * l - q;
+                r = hue2rgb(p, q, h / 360 + 1 / 3);
+                g = hue2rgb(p, q, h / 360);
+                b = hue2rgb(p, q, h / 360 - 1 / 3);
+              }
+              return [
+                Math.round(r * 255),
+                Math.round(g * 255),
+                Math.round(b * 255),
+              ];
+            };
+            let rgbToHex = function (r, g, b) {
+              return (
+                "#" +
+                [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")
+              );
+            };
+            let hexToHsl = function (hex) {
+              hex = hex.replace("#", "");
+              if (hex.length === 3)
+                hex = hex
+                  .split("")
+                  .map((x) => x + x)
+                  .join("");
+              let r = parseInt(hex.substring(0, 2), 16) / 255;
+              let g = parseInt(hex.substring(2, 4), 16) / 255;
+              let b = parseInt(hex.substring(4, 6), 16) / 255;
+              let max = Math.max(r, g, b),
+                min = Math.min(r, g, b);
+              let h,
+                s,
+                l = (max + min) / 2;
+              if (max == min) {
+                h = s = 0;
+              } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                  case r:
+                    h = (g - b) / d + (g < b ? 6 : 0);
+                    break;
+                  case g:
+                    h = (b - r) / d + 2;
+                    break;
+                  case b:
+                    h = (r - g) / d + 4;
+                    break;
+                }
+                h *= 60;
+              }
+              return [h, s, l];
+            };
+            let setSidebarColors = function (hex) {
+              let hsl = hexToHsl(hex);
+              let h = hsl[0];
+              let s = hsl[1];
+              let l = hsl[2];
+              let menuColor = `hsl(${h}deg 49% 17%)`;
+              let sidebarColor = `hsl(${h}deg 76% 5%)`;
+              let popupColor = `hsl(${h}deg 76% 20%)`;
+              let workspaceColor = `hsl(${h}deg 29% 18%)`;
+              document.body.style.setProperty(
+                "--sidebar-menu-color",
+                menuColor
+              );
+              document.body.style.setProperty("--sidebar-color", sidebarColor);
+              document.body.style.setProperty("--popup-color", popupColor);
+              document.body.style.setProperty(
+                "--workspace-color",
+                workspaceColor
+              );
+            };
+            let updateHexInput = () => {
+              hexInput.value = getSidebarColor();
+            };
+            hexInput.addEventListener("input", function () {
+              let v = hexInput.value.trim();
+              if (/^#([0-9a-fA-F]{6})$/.test(v)) {
+                setSidebarColors(v);
+              }
+            });
+            setTimeout(updateHexInput, 100);
+            let slider = popup.querySelector('input[type="range"]');
+            if (slider) {
+              let lastVal = slider.value;
+              let sync = () => {
+                setTimeout(updateHexInput, 10);
+              };
+              slider.addEventListener("input", sync);
+            }
+            popup.appendChild(hexInput);
+          }
+        });
+    });
+  });
+  popupObserver.observe(document.body, { childList: true, subtree: true });
 })();
