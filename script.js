@@ -11,6 +11,7 @@
     newChatButtonColor: "tweak_newChatButtonColor",
     workspaceIconColor: "tweak_workspaceIconColor",
     workspaceFontColor: "tweak_workspaceFontColor",
+    sidebarMenuColor: "tweak_sidebarMenuColor",
     customPageTitle: "tweak_customPageTitle",
     showModalButton: "tweak_showModalButton",
     customFontUrl: "tweak_customFontUrl",
@@ -23,6 +24,7 @@
   const defaultNewChatButtonColor = "#2563eb";
   const defaultWorkspaceIconColorVisual = "#9ca3af";
   const defaultWorkspaceFontColorVisual = "#d1d5db";
+  const defaultSidebarMenuColor = "#18181b";
   let originalPageTitle = null;
   const cleanValue = (value) => {
     if (!value) return null;
@@ -51,6 +53,7 @@
     const newChatColor = getSetting(settingsKeys.newChatButtonColor, null);
     const wsIconColor = getSetting(settingsKeys.workspaceIconColor, null);
     const wsFontColor = getSetting(settingsKeys.workspaceFontColor, null);
+    const sidebarMenuColor = getSetting(settingsKeys.sidebarMenuColor, null);
     const showModalButtonSetting = getSetting(
       settingsKeys.showModalButton,
       true
@@ -83,6 +86,14 @@
           return;
         }
       });
+      if (sidebarMenuColor) {
+        workspaceBar.style.setProperty(
+          "--sidebar-menu-color",
+          sidebarMenuColor
+        );
+      } else {
+        workspaceBar.style.removeProperty("--sidebar-menu-color");
+      }
     }
     const logoImage = document.querySelector(
       'img[alt="TypingMind"][src="/logo.png"]'
@@ -602,6 +613,31 @@
     wsFontColorInputWrapper.appendChild(wsFontResetButton);
     wsFontColorPickerSection.appendChild(wsFontColorLabel);
     wsFontColorPickerSection.appendChild(wsFontColorInputWrapper);
+    const sidebarMenuColorPickerSection = document.createElement("div");
+    sidebarMenuColorPickerSection.className = "tweak-color-item";
+    const sidebarMenuColorLabel = document.createElement("label");
+    sidebarMenuColorLabel.htmlFor = "tweak_sidebarMenuColor_input";
+    sidebarMenuColorLabel.textContent = "Sidebar Color:";
+    const sidebarMenuColorInputWrapper = document.createElement("div");
+    sidebarMenuColorInputWrapper.className = "tweak-color-input-wrapper";
+    const sidebarMenuColorInput = document.createElement("input");
+    sidebarMenuColorInput.type = "color";
+    sidebarMenuColorInput.id = "tweak_sidebarMenuColor_input";
+    sidebarMenuColorInput.addEventListener("input", (event) => {
+      saveSetting(settingsKeys.sidebarMenuColor, event.target.value);
+    });
+    const sidebarMenuColorResetButton = document.createElement("button");
+    sidebarMenuColorResetButton.textContent = "Reset";
+    sidebarMenuColorResetButton.className = "tweak-reset-button";
+    sidebarMenuColorResetButton.type = "button";
+    sidebarMenuColorResetButton.addEventListener("click", () => {
+      saveSetting(settingsKeys.sidebarMenuColor, null);
+      sidebarMenuColorInput.value = defaultSidebarMenuColor;
+    });
+    sidebarMenuColorInputWrapper.appendChild(sidebarMenuColorInput);
+    sidebarMenuColorInputWrapper.appendChild(sidebarMenuColorResetButton);
+    sidebarMenuColorPickerSection.appendChild(sidebarMenuColorLabel);
+    sidebarMenuColorPickerSection.appendChild(sidebarMenuColorInputWrapper);
     const customTitleSection = document.createElement("div");
     customTitleSection.className = "tweak-text-item";
     const titleLabel = document.createElement("label");
@@ -755,6 +791,7 @@
     scrollableContent.appendChild(colorPickerSection);
     scrollableContent.appendChild(wsIconColorPickerSection);
     scrollableContent.appendChild(wsFontColorPickerSection);
+    scrollableContent.appendChild(sidebarMenuColorPickerSection);
     scrollableContent.appendChild(customTitleSection);
     const divider = document.createElement("hr");
     divider.style.borderColor = "#4a4a4a";
@@ -895,6 +932,18 @@
       wsFontColorInput.value = storedWsFontColor
         ? storedWsFontColor
         : defaultWorkspaceFontColorVisual;
+    }
+    const sidebarMenuColorInput = document.getElementById(
+      "tweak_sidebarMenuColor_input"
+    );
+    if (sidebarMenuColorInput) {
+      const storedSidebarMenuColor = getSetting(
+        settingsKeys.sidebarMenuColor,
+        null
+      );
+      sidebarMenuColorInput.value = storedSidebarMenuColor
+        ? storedSidebarMenuColor
+        : defaultSidebarMenuColor;
     }
     const titleInput = document.getElementById("tweak_customPageTitle_input");
     if (titleInput) {
