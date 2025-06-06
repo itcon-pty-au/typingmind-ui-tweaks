@@ -40,7 +40,21 @@
 
   function getSetting(key, defaultValue = false) {
     const value = localStorage.getItem(key);
-    return value === null ? defaultValue : JSON.parse(value);
+    if (value === null) return defaultValue;
+
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      console.warn(
+        `${consolePrefix} Error parsing setting ${key}:`,
+        error,
+        `Raw value: "${value}"`
+      );
+      if (value === "true") return true;
+      if (value === "false") return false;
+      if (!isNaN(value) && value.trim() !== "") return Number(value);
+      return value || defaultValue;
+    }
   }
 
   function applyStylesBasedOnSettings() {
@@ -237,12 +251,8 @@
       'div[data-element-id="workspace-bar"] {background: var(--sidebar-menu-color, #18181b) !important;}';
   }
   function applyCustomTitle() {
-    const customTitle = localStorage.getItem(settingsKeys.customPageTitle);
-    if (
-      customTitle &&
-      typeof customTitle === "string" &&
-      customTitle.trim() !== ""
-    ) {
+    const customTitle = getSetting(settingsKeys.customPageTitle, "");
+    if (customTitle && customTitle.trim() !== "") {
       if (document.title !== customTitle) {
         document.title = customTitle;
       }
@@ -669,11 +679,7 @@
     titleInput.id = "tweak_customPageTitle_input";
     titleInput.placeholder = "Custom Page Title";
     titleInput.addEventListener("input", (event) => {
-      localStorage.setItem(
-        settingsKeys.customPageTitle,
-        event.target.value || ""
-      );
-      applyCustomTitle();
+      saveSetting(settingsKeys.customPageTitle, event.target.value || "");
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
     const clearTitleButton = document.createElement("button");
@@ -681,9 +687,8 @@
     clearTitleButton.className = "tweak-reset-button";
     clearTitleButton.type = "button";
     clearTitleButton.addEventListener("click", () => {
-      localStorage.removeItem(settingsKeys.customPageTitle);
+      saveSetting(settingsKeys.customPageTitle, null);
       titleInput.value = "";
-      applyCustomTitle();
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
     titleInputWrapper.appendChild(titleInput);
@@ -961,41 +966,25 @@
     }
     const titleInput = document.getElementById("tweak_customPageTitle_input");
     if (titleInput) {
-      const storedTitle =
-        localStorage.getItem(settingsKeys.customPageTitle) || "";
+      const storedTitle = getSetting(settingsKeys.customPageTitle, "");
       titleInput.value = storedTitle;
     }
     const fontInput = document.getElementById("tweak_customFontUrl_input");
     if (fontInput) {
-      const storedFontUrl =
-        localStorage.getItem(settingsKeys.customFontUrl) || "";
+      const storedFontUrl = getSetting(settingsKeys.customFontUrl, "");
       fontInput.value = cleanValue(storedFontUrl) || "";
     }
     const fontFamilyInput = document.getElementById(
       "tweak_customFontFamily_input"
     );
     if (fontFamilyInput) {
-      const storedFontFamily =
-        localStorage.getItem(settingsKeys.customFontFamily) || "";
+      const storedFontFamily = getSetting(settingsKeys.customFontFamily, "");
       fontFamilyInput.value = cleanValue(storedFontFamily) || "";
     }
     const fontSizeInput = document.getElementById("tweak_customFontSize_input");
     if (fontSizeInput) {
-      const storedSizeString = localStorage.getItem(
-        settingsKeys.customFontSize
-      );
-      let sizeToSet = "";
-      if (storedSizeString && storedSizeString !== "null") {
-        try {
-          const parsedSize = JSON.parse(storedSizeString);
-          if (typeof parsedSize === "number" && parsedSize > 0) {
-            sizeToSet = parsedSize;
-          }
-        } catch (e) {
-          console.error(`${consolePrefix} Error parsing stored font size:`, e);
-        }
-      }
-      fontSizeInput.value = sizeToSet;
+      const storedSize = getSetting(settingsKeys.customFontSize, null);
+      fontSizeInput.value = storedSize && storedSize > 0 ? storedSize : "";
     }
     const faviconInput = document.getElementById(
       "tweak_customFaviconData_input"
@@ -1300,9 +1289,9 @@
   );
 
   function applyCustomFont() {
-    let customFontUrl = localStorage.getItem(settingsKeys.customFontUrl);
-    let customFontFamily = localStorage.getItem(settingsKeys.customFontFamily);
-    let customFontSize = localStorage.getItem(settingsKeys.customFontSize);
+    let customFontUrl = getSetting(settingsKeys.customFontUrl, null);
+    let customFontFamily = getSetting(settingsKeys.customFontFamily, null);
+    let customFontSize = getSetting(settingsKeys.customFontSize, null);
     const styleId = "tweak-custom-font-style";
     let styleElement = document.getElementById(styleId);
     let cssRules = [];
@@ -1313,7 +1302,7 @@
     }
     const cleanedUrl = cleanValue(customFontUrl);
     const cleanedFamily = cleanValue(customFontFamily);
-    const cleanedSize = cleanValue(customFontSize);
+    const cleanedSize = customFontSize;
     if (cleanedUrl) {
       if (
         cleanedUrl.startsWith("http://") ||
