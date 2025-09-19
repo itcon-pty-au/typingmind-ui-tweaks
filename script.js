@@ -4,6 +4,7 @@
   const settingsKeys = {
     hideTeams: "tweak_hideTeams",
     hideKB: "tweak_hideKB",
+    hideKBToggle: "tweak_hideKBToggle",
     hideLogo: "tweak_hideLogo",
     hideProfile: "tweak_hideProfile",
     hideChatProfiles: "tweak_hideChatProfiles",
@@ -60,6 +61,7 @@
   function applyStylesBasedOnSettings() {
     const hideTeams = getSetting(settingsKeys.hideTeams);
     const hideKB = getSetting(settingsKeys.hideKB);
+    const hideKBToggle = getSetting(settingsKeys.hideKBToggle);
     const hideLogo = getSetting(settingsKeys.hideLogo);
     const hideProfile = getSetting(settingsKeys.hideProfile);
     const hideChatProfiles = getSetting(settingsKeys.hideChatProfiles);
@@ -161,6 +163,15 @@
         pinnedCharsContainer.style.display = newDisplay;
       }
     } else {
+    }
+    const kbToggleButton = document.querySelector(
+      'button[data-element-id="toggle-kb-button"]'
+    );
+    if (kbToggleButton) {
+      const newDisplay = hideKBToggle ? "none" : "";
+      if (kbToggleButton.style.display !== newDisplay) {
+        kbToggleButton.style.display = newDisplay;
+      }
     }
     const newChatButton = document.querySelector(
       'button[data-element-id="new-chat-button-in-side-bar"]'
@@ -523,6 +534,7 @@
     const settings = [
       { key: settingsKeys.hideTeams, label: "Hide 'Teams' menu item" },
       { key: settingsKeys.hideKB, label: "Hide 'KB' menu item" },
+      { key: settingsKeys.hideKBToggle, label: "Hide 'KB' toggle button" },
       { key: settingsKeys.hideLogo, label: "Hide Logo & Announcement section" },
       { key: settingsKeys.hideProfile, label: "Hide 'Profile' button" },
       {
@@ -893,6 +905,7 @@
     const settingsMetadata = [
       { key: settingsKeys.hideTeams, defaultValue: false },
       { key: settingsKeys.hideKB, defaultValue: false },
+      { key: settingsKeys.hideKBToggle, defaultValue: false },
       { key: settingsKeys.hideLogo, defaultValue: false },
       { key: settingsKeys.hideProfile, defaultValue: false },
       { key: settingsKeys.hideChatProfiles, defaultValue: false },
