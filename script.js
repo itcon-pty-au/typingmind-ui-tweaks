@@ -1120,10 +1120,6 @@
   }
   createSettingsModal();
 
-  // Button state constants matching native UI patterns
-  const PINNED_CLASSES = "text-white/70 sm:hover:bg-white/20 flex rounded-[10px] w-9 h-9 items-center justify-center shrink-0 transition-colors cursor-default focus:outline-0";
-  const EXPANDED_CLASSES = "text-white/70 sm:hover:bg-white/20 inline-flex rounded-xl px-0.5 py-1.5 flex-col justify-start items-center gap-1.5 flex-1 md:flex-none md:w-full min-w-[58px] md:min-w-0 h-12 md:min-h-[50px] md:h-fit shrink-0 transition-colors cursor-default focus:outline-0";
-
   // Observer instances for cleanup
   let tweaksButtonSettingsObserver = null;
   let tweaksButtonBodyObserver = null;
@@ -1174,8 +1170,14 @@
           const settingsBtn = document.querySelector('button[data-element-id="workspace-tab-settings"]');
           const isPinned = !!settingsBtn && settingsBtn.classList.contains("w-9") && settingsBtn.classList.contains("h-9");
 
-          // Use constant classes to avoid inheriting active/selected states
-          tweaksButton.className = isPinned ? PINNED_CLASSES : EXPANDED_CLASSES;
+          // Copy classes from settings button, filtering out dynamic state classes
+          if (settingsBtn) {
+            const classesToExclude = ['active', 'selected'];
+            const filteredClasses = Array.from(settingsBtn.classList).filter(
+              cls => !classesToExclude.includes(cls) && !cls.startsWith('aria-')
+            ).join(' ');
+            tweaksButton.className = filteredClasses;
+          }
 
           if (isPinned) {
             tweaksButton.setAttribute("data-tooltip-content", "Tweaks");
