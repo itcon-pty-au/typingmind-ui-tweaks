@@ -244,7 +244,7 @@
           }
         }
 
-        const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
+        const newDisplay = showModalButtonSetting ? "" : "none";
         if (tweaksButton.style.display !== newDisplay) {
           tweaksButton.style.display = newDisplay;
         }
@@ -1098,6 +1098,15 @@
     applyCustomFavicon();
   }
   createSettingsModal();
+
+  // Button state constants matching native UI patterns
+  const PINNED_CLASSES = "text-white/70 sm:hover:bg-white/20 flex rounded-[10px] w-9 h-9 items-center justify-center shrink-0 transition-colors cursor-default focus:outline-0";
+  const EXPANDED_CLASSES = "text-white/70 sm:hover:bg-white/20 inline-flex rounded-xl px-0.5 py-1.5 flex-col justify-start items-center gap-1.5 flex-1 md:flex-none md:w-full min-w-[58px] md:min-w-0 h-12 md:min-h-[50px] md:h-fit shrink-0 transition-colors cursor-default focus:outline-0";
+
+  // Observer instances for cleanup
+  let tweaksButtonSettingsObserver = null;
+  let tweaksButtonBodyObserver = null;
+
   const observer = new MutationObserver((mutationsList) => {
     applyStylesBasedOnSettings();
     applyCustomTitle();
@@ -1111,92 +1120,100 @@
       const settingsButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-settings"]'
       );
-      const syncButton = workspaceBar.querySelector(
-        'button[data-element-id="workspace-tab-cloudsync"]'
-      );
-      const profileButton = document.querySelector(
-        'button[data-element-id="workspace-profile-button"]'
-      );
-      const styleReferenceButton = syncButton || profileButton;
-      if (!tweaksButton && settingsButton && styleReferenceButton) {
+
+      if (!tweaksButton && settingsButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
-        tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
-        tweaksButton.className = styleReferenceButton.className;
-        const outerSpan = document.createElement("span");
-        const styleReferenceOuterSpan =
-          styleReferenceButton.querySelector(":scope > span");
-        if (styleReferenceOuterSpan) {
-          outerSpan.className = styleReferenceOuterSpan.className;
-        }
+        tweaksButton.setAttribute("data-tooltip-id", "global");
+        tweaksButton.setAttribute("data-tooltip-place", "right");
+        tweaksButton.style.cursor = "pointer";
 
-        const iconDiv = document.createElement("div");
-        const styleReferenceIconDiv = styleReferenceButton.querySelector(
-          ":scope > span > div"
-        );
-        if (styleReferenceIconDiv) {
-          iconDiv.className = styleReferenceIconDiv.className;
-        }
-        iconDiv.style.position = "relative";
-        iconDiv.style.display = "flex";
-        iconDiv.style.justifyContent = "center";
-        iconDiv.style.alignItems = "center";
+        // HTML for pinned state (small icon, no text)
+        const pinnedHTML = `
+          <div class="relative w-[18px] h-[18px] flex-shrink-0">
+            <svg class="w-[18px] h-[18px] flex-shrink-0" width="18px" height="18px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4c-.83 0-1.5-.67-1.5-1.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+            </svg>
+          </div>
+        `;
 
-        const svgIcon = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg"
-        );
-        svgIcon.setAttribute("class", "w-5 h-5 flex-shrink-0");
-        svgIcon.setAttribute("width", "18px");
-        svgIcon.setAttribute("height", "18px");
-        svgIcon.setAttribute("viewBox", "0 0 24 24");
-        svgIcon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        const currentWsIconColor = getSetting(
-          settingsKeys.workspaceIconColor,
-          null
-        );
-        svgIcon.style.color =
-          currentWsIconColor || defaultWorkspaceIconColorVisual;
-        svgIcon.setAttribute("fill", "currentColor");
+        // HTML for expanded state (icon + text)
+        const expandedHTML = `
+          <div class="relative w-4 h-4 flex-shrink-0">
+            <svg class="w-4 h-4 flex-shrink-0" width="18px" height="18px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4c-.83 0-1.5-.67-1.5-1.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+            </svg>
+          </div>
+          <span class="font-normal mx-auto self-stretch text-center text-xs leading-4 md:leading-none w-full md:w-[51px]" style="hyphens: auto; word-break: break-word;">Tweaks</span>
+        `;
 
-        const svgPath = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "path"
-        );
-        svgPath.setAttribute(
-          "d",
-          "M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4c-.83 0-1.5-.67-1.5-1.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
-        );
-        svgIcon.appendChild(svgPath);
-        iconDiv.appendChild(svgIcon);
+        // Function to render button matching settings button state
+        const renderLikeSettings = () => {
+          const settingsBtn = document.querySelector('button[data-element-id="workspace-tab-settings"]');
+          const isPinned = !!settingsBtn && settingsBtn.classList.contains("w-9") && settingsBtn.classList.contains("h-9");
 
-        const textSpan = document.createElement("span");
-        textSpan.className =
-          "font-normal self-stretch text-center text-xs leading-4 md:leading-none";
-        textSpan.textContent = "Tweaks";
+          tweaksButton.className = settingsBtn?.className || (isPinned ? PINNED_CLASSES : EXPANDED_CLASSES);
 
-        outerSpan.appendChild(iconDiv);
-        outerSpan.appendChild(textSpan);
-        tweaksButton.appendChild(outerSpan);
+          if (isPinned) {
+            tweaksButton.setAttribute("data-tooltip-content", "Tweaks");
+            tweaksButton.innerHTML = pinnedHTML;
+          } else {
+            tweaksButton.removeAttribute("data-tooltip-content");
+            tweaksButton.innerHTML = expandedHTML;
+          }
 
+          // Apply custom icon color if set
+          const currentWsIconColor = getSetting(settingsKeys.workspaceIconColor, null);
+          const svg = tweaksButton.querySelector("svg");
+          if (svg && currentWsIconColor) {
+            svg.style.color = currentWsIconColor;
+          }
+        };
+
+        // Initial render
+        renderLikeSettings();
+
+        // Add click handler
         tweaksButton.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
           toggleModal(true);
         });
+
+        // Insert button before settings button
         if (settingsButton.parentNode) {
           settingsButton.parentNode.insertBefore(tweaksButton, settingsButton);
-          const showModalButtonSetting = getSetting(
-            settingsKeys.showModalButton,
-            true
-          );
-          const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
+          const showModalButtonSetting = getSetting(settingsKeys.showModalButton, true);
+          const newDisplay = showModalButtonSetting ? "" : "none";
           tweaksButton.style.display = newDisplay;
         } else {
-          console.warn(
-            `${consolePrefix} Could not insert Tweaks button, settings button has no parent node.`
-          );
+          console.warn(`${consolePrefix} Could not insert Tweaks button, settings button has no parent node.`);
+        }
+
+        // Setup MutationObserver to watch settings button for changes
+        if (!tweaksButtonSettingsObserver) {
+          const tryAttach = () => {
+            const settingsBtn = document.querySelector('button[data-element-id="workspace-tab-settings"]');
+            if (!settingsBtn) return false;
+
+            const obs = new MutationObserver(() => renderLikeSettings());
+            obs.observe(settingsBtn, {
+              attributes: true,
+              attributeFilter: ["class"],
+              childList: true
+            });
+            tweaksButtonSettingsObserver = obs;
+            return true;
+          };
+
+          if (!tryAttach()) {
+            const bodyObs = new MutationObserver(() => {
+              if (tryAttach()) bodyObs.disconnect();
+            });
+            bodyObs.observe(document.body, { childList: true, subtree: true });
+            tweaksButtonBodyObserver = bodyObs;
+          }
         }
       }
     }
