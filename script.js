@@ -260,6 +260,27 @@
     }
     sidebarStyle.textContent =
       'div[data-element-id="workspace-bar"] {background: var(--sidebar-menu-color, #18181b) !important;}';
+
+    // Add styles for tweaks button active state
+    let tweaksButtonStyle = document.getElementById("tweak-button-active-style");
+    if (!tweaksButtonStyle) {
+      tweaksButtonStyle = document.createElement("style");
+      tweaksButtonStyle.id = "tweak-button-active-style";
+      document.head.appendChild(tweaksButtonStyle);
+    }
+    tweaksButtonStyle.textContent = `
+      /* Tweaks button active/selected state */
+      button[data-element-id="workspace-tab-tweaks"]:active,
+      button[data-element-id="workspace-tab-tweaks"].active,
+      button[data-element-id="workspace-tab-tweaks"][aria-selected="true"] {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+      }
+      button[data-element-id="workspace-tab-tweaks"]:active svg,
+      button[data-element-id="workspace-tab-tweaks"].active svg,
+      button[data-element-id="workspace-tab-tweaks"][aria-selected="true"] svg {
+        color: rgb(255, 255, 255) !important;
+      }
+    `;
   }
   function applyCustomTitle() {
     const customTitle = getSetting(settingsKeys.customPageTitle, "");
@@ -1153,7 +1174,8 @@
           const settingsBtn = document.querySelector('button[data-element-id="workspace-tab-settings"]');
           const isPinned = !!settingsBtn && settingsBtn.classList.contains("w-9") && settingsBtn.classList.contains("h-9");
 
-          tweaksButton.className = settingsBtn?.className || (isPinned ? PINNED_CLASSES : EXPANDED_CLASSES);
+          // Use constant classes to avoid inheriting active/selected states
+          tweaksButton.className = isPinned ? PINNED_CLASSES : EXPANDED_CLASSES;
 
           if (isPinned) {
             tweaksButton.setAttribute("data-tooltip-content", "Tweaks");
